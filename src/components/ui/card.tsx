@@ -6,7 +6,7 @@ export function Card({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <motionless
+    <div
       className={cn(
         "rounded-xl border border-slate-200 bg-white shadow-sm",
         className,
@@ -16,18 +16,11 @@ export function Card({
   );
 }
 
-function motionless({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={className} {...props} />;
-}
-
 export function CardHeader({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <motionless className={cn("flex flex-col gap-1.5 p-6", className)} {...props} />;
+  return <div className={cn("flex flex-col gap-1.5 p-6", className)} {...props} />;
 }
 
 export function CardTitle({

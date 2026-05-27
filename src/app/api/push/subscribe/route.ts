@@ -1,0 +1,30 @@
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+
+export async function POST(request: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const subscription = await request.json();
+  const p256dh = subscription.keys?.p256dh;
+  const auth = subscription.keys?.auth;
+
+  if (!subscription.endpoint || !p256dh || !auth) {
+    return NextResponse.json({ error: "Invalid subscription payload" }, { status: 400 });
+  }
+
+  await supabase.from("push_subscriptions").upsert({
+    user_id: user.id,
+    endpoint: subscription.endpoint,
+    p256dh,
+    auth,
+  });
+
+  return NextResponse.json({ ok: true });
+}
