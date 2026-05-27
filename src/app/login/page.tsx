@@ -4,8 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <Card className="w-full max-w-md">
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 px-4">
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
           <CardTitle>Sign in</CardTitle>
           <CardDescription>Access your licences and renewal reminders.</CardDescription>

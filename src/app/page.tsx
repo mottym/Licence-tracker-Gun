@@ -4,8 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function Home() {
   return (
-    <main className="flex flex-1 items-center justify-center bg-slate-50 px-4 py-10">
-      <Card className="w-full max-w-2xl">
+    <main className="flex flex-1 items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 px-4 py-10">
+      <Card className="w-full max-w-2xl shadow-lg">
         <CardHeader>
           <CardTitle>Gun Licence Tracker</CardTitle>
           <CardDescription>

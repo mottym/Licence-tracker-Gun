@@ -103,10 +103,10 @@ create trigger notification_preferences_updated_at before update on public.notif
 create or replace function public.handle_new_user()
 returns trigger as $$
 declare
-  admin_email text := current_setting('app.admin_email', true);
+  admin_email text := 'muller3493@gmail.com';
   user_role text := 'user';
 begin
-  if admin_email is not null and lower(new.email) = lower(admin_email) then
+  if lower(new.email) = lower(admin_email) then
     user_role := 'admin';
   end if;
 
