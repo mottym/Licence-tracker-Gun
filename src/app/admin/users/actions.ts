@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin";
+import { skipEmailVerification } from "@/lib/auth-config";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/types/database";
 
@@ -34,7 +35,6 @@ export async function inviteUser(
     }
 
     const service = await createServiceClient();
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
     const { data: existingProfile } = await service
       .from("profiles")
@@ -83,24 +83,34 @@ export async function inviteUser(
       return { error: insertError.message };
     }
 
-    const { error: inviteError } = await service.auth.admin.inviteUserByEmail(
-      email,
-      { redirectTo: `${siteUrl}/auth/callback` },
-    );
+    if (!skipEmailVerification()) {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+      const { error: inviteError } = await service.auth.admin.inviteUserByEmail(
+        email,
+        { redirectTo: `${siteUrl}/auth/callback` },
+      );
 
-    if (inviteError) {
-      await service
-        .from("invitations")
-        .delete()
-        .ilike("email", email)
-        .is("accepted_at", null);
-      return { error: inviteError.message };
+      if (inviteError) {
+        await service
+          .from("invitations")
+          .delete()
+          .ilike("email", email)
+          .is("accepted_at", null);
+        return { error: inviteError.message };
+      }
+
+      revalidatePath("/admin/users");
+      const roleLabel = role === "admin" ? "admin" : "user";
+      return {
+        success: `Invitation email sent to ${email} as ${roleLabel}.`,
+      };
     }
 
+    // SMTP not configured — no invite email; user signs up at /signup with this email
     revalidatePath("/admin/users");
     const roleLabel = role === "admin" ? "admin" : "user";
     return {
-      success: `Invitation sent to ${email} as ${roleLabel}.`,
+      success: `Added ${email} as pending ${roleLabel}. They can create an account at /signup with this email (no email sent).`,
     };
   } catch (err) {
     return {

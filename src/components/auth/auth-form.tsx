@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signUpWithoutEmailVerification } from "@/app/auth/actions";
+import { skipEmailVerification } from "@/lib/auth-config";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,12 +44,39 @@ export function AuthForm({ mode }: AuthFormProps) {
       return;
     }
 
+    if (skipEmailVerification()) {
+      const { error: createError } = await signUpWithoutEmailVerification(
+        email,
+        password,
+      );
+      if (createError) {
+        setError(createError);
+        setLoading(false);
+        return;
+      }
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError) {
+        setError(signInError.message);
+        setLoading(false);
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh();
+      return;
+    }
+
+    // Email verification enabled — requires Supabase SMTP / confirm-email flow
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+      // options: {
+      //   emailRedirectTo: `${window.location.origin}/auth/callback`,
+      // },
     });
 
     if (signUpError) {

@@ -23,8 +23,8 @@ export default async function AdminUsersPage() {
         <CardHeader>
           <CardTitle>Invite someone</CardTitle>
           <CardDescription>
-            Send an email invitation. They choose a password when they accept. Pick
-            User or Admin — the role is applied when they join.
+            Add a user by email and role. Without SMTP, no email is sent — they sign up
+            at /signup with that email and the role is applied automatically.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -35,7 +35,9 @@ export default async function AdminUsersPage() {
       <Card>
         <CardHeader>
           <CardTitle>Pending invitations</CardTitle>
-          <CardDescription>Waiting for the recipient to accept the email invite.</CardDescription>
+          <CardDescription>
+            Waiting for them to register at /signup with this email.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           {(invitations ?? []).length === 0 ? (
