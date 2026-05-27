@@ -14,6 +14,15 @@ export interface Profile {
   updated_at: string;
 }
 
+export interface Invitation {
+  id: string;
+  email: string;
+  role: UserRole;
+  invited_by: string;
+  accepted_at: string | null;
+  created_at: string;
+}
+
 export interface StateGroup {
   id: string;
   name: string;
