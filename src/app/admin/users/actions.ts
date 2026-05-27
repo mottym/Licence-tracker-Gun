@@ -130,20 +130,47 @@ export async function cancelInvitation(formData: FormData) {
   revalidatePath("/admin/users");
 }
 
+export async function setUserRole(
+  userId: string,
+  role: UserRole,
+): Promise<{ error?: string; success?: string }> {
+  try {
+    const { profile } = await requireAdmin();
+
+    if (!userId) {
+      return { error: "User not found." };
+    }
+
+    if (userId === profile.id && role !== "admin") {
+      return { error: "You cannot remove your own admin access." };
+    }
+
+    const service = await createServiceClient();
+    const { error } = await service
+      .from("profiles")
+      .update({ role })
+      .eq("id", userId);
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    revalidatePath("/admin/users");
+    return {
+      success:
+        role === "admin"
+          ? "User is now an admin."
+          : "Admin access removed.",
+    };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Could not update role.",
+    };
+  }
+}
+
 export async function updateUserRole(formData: FormData) {
-  await requireAdmin();
   const userId = String(formData.get("user_id") ?? "");
   const role = parseRole(formData.get("role"));
-
-  if (!userId) return;
-
-  const { profile } = await requireAdmin();
-  if (userId === profile.id && role !== "admin") {
-    return;
-  }
-
-  const service = await createServiceClient();
-  await service.from("profiles").update({ role }).eq("id", userId);
-
-  revalidatePath("/admin/users");
+  await setUserRole(userId, role);
 }

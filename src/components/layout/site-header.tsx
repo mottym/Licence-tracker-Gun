@@ -5,13 +5,23 @@ import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { cn } from "@/lib/utils";
 
-const baseItems = [
+type NavItem = {
+  href: string;
+  label: string;
+  match: string;
+  exact?: boolean;
+};
+
+const baseItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", match: "/dashboard" },
   { href: "/dashboard/licences", label: "My Licences", match: "/dashboard/licences" },
   { href: "/dashboard/settings", label: "Settings", match: "/dashboard/settings" },
 ];
 
-const adminItem = { href: "/admin", label: "Admin", match: "/admin" };
+const adminNavItems: NavItem[] = [
+  { href: "/admin", label: "Admin", match: "/admin", exact: true },
+  { href: "/admin/users", label: "Users", match: "/admin/users" },
+];
 
 interface SiteHeaderProps {
   isAdmin?: boolean;
@@ -20,7 +30,7 @@ interface SiteHeaderProps {
 
 export function SiteHeader({ isAdmin = false, userEmail }: SiteHeaderProps) {
   const pathname = usePathname();
-  const items = isAdmin ? [...baseItems, adminItem] : baseItems;
+  const items = isAdmin ? [...baseItems, ...adminNavItems] : baseItems;
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
@@ -42,7 +52,9 @@ export function SiteHeader({ isAdmin = false, userEmail }: SiteHeaderProps) {
             const isActive =
               item.match === "/dashboard"
                 ? pathname === "/dashboard"
-                : pathname.startsWith(item.match);
+                : item.exact
+                  ? pathname === item.match
+                  : pathname.startsWith(item.match);
 
             return (
               <Link

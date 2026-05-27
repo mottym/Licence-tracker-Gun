@@ -1,11 +1,14 @@
-import { cancelInvitation, updateUserRole } from "./actions";
+import { requireAdmin } from "@/lib/admin";
+import { cancelInvitation } from "./actions";
 import { InviteUserForm } from "@/components/admin/invite-user-form";
+import { UserRoleControls } from "@/components/admin/user-role-controls";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { Profile } from "@/types/database";
 
 export default async function AdminUsersPage() {
+  const { profile: currentAdmin } = await requireAdmin();
   const service = await createServiceClient();
 
   const [{ data: invitations }, { data: profiles }] = await Promise.all([
@@ -17,14 +20,82 @@ export default async function AdminUsersPage() {
     service.from("profiles").select("*").order("email", { ascending: true }),
   ]);
 
+  const admins = (profiles ?? []).filter((p) => p.role === "admin");
+  const users = (profiles ?? []).filter((p) => p.role !== "admin");
+
   return (
     <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+          Users &amp; admins
+        </h1>
+        <p className="mt-1 text-sm text-slate-600">
+          Promote existing users to admin or add new people by email.
+        </p>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Invite someone</CardTitle>
+          <CardTitle>Admins ({admins.length})</CardTitle>
           <CardDescription>
-            Add a user by email and role. Without SMTP, no email is sent — they sign up
-            at /signup with that email and the role is applied automatically.
+            Admins can manage states, groups, and other users.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {admins.length === 0 ? (
+            <p className="text-sm text-slate-600">No admins yet.</p>
+          ) : (
+            admins.map((user: Profile) => (
+              <div
+                key={user.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-slate-50/50 p-4"
+              >
+                <p className="font-medium text-slate-900">{user.email}</p>
+                <UserRoleControls
+                  userId={user.id}
+                  role={user.role}
+                  isCurrentUser={user.id === currentAdmin.id}
+                />
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Users ({users.length})</CardTitle>
+          <CardDescription>
+            Click &quot;Make admin&quot; to grant admin panel access.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {users.length === 0 ? (
+            <p className="text-sm text-slate-600">No regular users yet.</p>
+          ) : (
+            users.map((user: Profile) => (
+              <div
+                key={user.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200/80 p-4"
+              >
+                <p className="font-medium text-slate-900">{user.email}</p>
+                <UserRoleControls
+                  userId={user.id}
+                  role={user.role}
+                  isCurrentUser={user.id === currentAdmin.id}
+                />
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Add someone</CardTitle>
+          <CardDescription>
+            Add by email and role. Without SMTP, they sign up at /signup with that
+            email — choose Admin to make them an admin when they join.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -34,14 +105,14 @@ export default async function AdminUsersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Pending invitations</CardTitle>
+          <CardTitle>Pending sign-ups</CardTitle>
           <CardDescription>
             Waiting for them to register at /signup with this email.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           {(invitations ?? []).length === 0 ? (
-            <p className="text-sm text-slate-600">No pending invitations.</p>
+            <p className="text-sm text-slate-600">No pending sign-ups.</p>
           ) : (
             (invitations ?? []).map((invite) => (
               <div
@@ -51,9 +122,10 @@ export default async function AdminUsersPage() {
                 <div>
                   <p className="font-medium text-slate-900">{invite.email}</p>
                   <p className="text-sm text-slate-600">
-                    Role: <span className="capitalize">{invite.role}</span>
+                    Will join as{" "}
+                    <span className="capitalize font-medium">{invite.role}</span>
                     {" · "}
-                    Sent {new Date(invite.created_at).toLocaleDateString()}
+                    Added {new Date(invite.created_at).toLocaleDateString()}
                   </p>
                 </div>
                 <form action={cancelInvitation}>
@@ -65,43 +137,6 @@ export default async function AdminUsersPage() {
               </div>
             ))
           )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>All users</CardTitle>
-          <CardDescription>
-            Change roles for existing accounts. Inviting an existing email updates their
-            role immediately.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {(profiles ?? []).map((user: Profile) => (
-            <div
-              key={user.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200/80 p-4"
-            >
-              <div>
-                <p className="font-medium text-slate-900">{user.email}</p>
-                <p className="text-sm capitalize text-slate-600">Current: {user.role}</p>
-              </div>
-              <form action={updateUserRole} className="flex items-center gap-2">
-                <input type="hidden" name="user_id" value={user.id} />
-                <select
-                  name="role"
-                  defaultValue={user.role}
-                  className="h-9 rounded-lg border border-slate-300 bg-white px-2 text-sm"
-                >
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                </select>
-                <Button type="submit" variant="secondary" size="sm">
-                  Update
-                </Button>
-              </form>
-            </div>
-          ))}
         </CardContent>
       </Card>
     </div>

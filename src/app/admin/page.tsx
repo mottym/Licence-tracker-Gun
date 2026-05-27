@@ -35,7 +35,7 @@ export default async function AdminHomePage() {
           <CardDescription>Manage rules and states</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
-          <p><Link className="underline" href="/admin/users">Invite users &amp; admins</Link></p>
+          <p><Link className="underline" href="/admin/users">Users &amp; admins — promote or invite</Link></p>
           <p><Link className="underline" href="/admin/groups">Manage groups</Link></p>
           <p><Link className="underline" href="/admin/states">Manage states</Link></p>
         </CardContent>
