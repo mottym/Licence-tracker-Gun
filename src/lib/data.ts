@@ -35,7 +35,7 @@ export async function getUserLicences(): Promise<LicenceWithStatus[]> {
     .eq("user_id", user.id)
     .order("last_renewed_at", { ascending: false });
 
-  return (data ?? [])
+  const licencesWithStatus = (data ?? [])
     .map((licence) => {
       const rules = licence.states ? resolveStateRules(licence.states as State) : null;
       if (!rules) return null;
@@ -43,4 +43,16 @@ export async function getUserLicences(): Promise<LicenceWithStatus[]> {
       return { ...licence, rules, ...status };
     })
     .filter((value): value is LicenceWithStatus => Boolean(value));
+
+  const licencesWithPhotos = await Promise.all(
+    licencesWithStatus.map(async (licence) => {
+      if (!licence.photo_url) return { ...licence, photo_signed_url: null };
+      const { data: signed } = await supabase.storage
+        .from("licence-photos")
+        .createSignedUrl(licence.photo_url, 3600);
+      return { ...licence, photo_signed_url: signed?.signedUrl ?? null };
+    }),
+  );
+
+  return licencesWithPhotos;
 }
