@@ -15,13 +15,14 @@ export async function GET(request: Request) {
   const supabase = await createServiceClient();
 
   const { data: licences } = await supabase
-    .from("licences")
-    .select("*, states(*, state_groups(*)), profiles(email), notification_preferences(*)");
+    .from("gun_licences")
+    .select("*, states(*, state_groups(*)), profiles(email), notification_preferences(*), record_types(*)");
 
   let sent = 0;
 
   for (const licence of licences ?? []) {
     if (!licence.states) continue;
+    if (!licence.legacy_licence_id) continue;
     const rules = {
       expiration_months:
         licence.states.expiration_months ?? (licence.states as State).state_groups?.expiration_months,
@@ -45,7 +46,7 @@ export async function GET(request: Request) {
     const { data: existing } = await supabase
       .from("notification_log")
       .select("id")
-      .eq("licence_id", licence.id)
+      .eq("licence_id", licence.legacy_licence_id ?? licence.id)
       .eq("channel", "email")
       .eq("notification_type", type)
       .maybeSingle();
@@ -62,7 +63,7 @@ export async function GET(request: Request) {
       sent += 1;
       await supabase.from("notification_log").insert({
         user_id: licence.user_id,
-        licence_id: licence.id,
+        licence_id: licence.legacy_licence_id ?? licence.id,
         channel: "email",
         notification_type: type,
       });
@@ -83,7 +84,7 @@ export async function GET(request: Request) {
         });
         await supabase.from("notification_log").insert({
           user_id: licence.user_id,
-          licence_id: licence.id,
+          licence_id: licence.legacy_licence_id ?? licence.id,
           channel: "push",
           notification_type: type,
         });

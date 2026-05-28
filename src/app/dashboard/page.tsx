@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { getUserLicences } from "@/lib/data";
+import { getGunCourses, getGunLicences } from "@/lib/data";
 import { formatDate } from "@/lib/utils";
 import { statusColor, statusLabel } from "@/lib/licences/calculate";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function DashboardPage() {
-  const licences = await getUserLicences();
+  const [licences, courses] = await Promise.all([getGunLicences(), getGunCourses()]);
   const expiringSoon = licences.filter((licence) => licence.daysUntilExpiry <= 30).length;
 
   return (
@@ -18,7 +18,7 @@ export default async function DashboardPage() {
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
           <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 ring-1 ring-slate-900/5">
-            <p className="text-sm font-medium text-slate-600">Total licences</p>
+            <p className="text-sm font-medium text-slate-600">Gun licences</p>
             <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">
               {licences.length}
             </p>
@@ -33,6 +33,12 @@ export default async function DashboardPage() {
             <p className="text-sm font-medium text-red-800/80">Expired</p>
             <p className="mt-1 text-3xl font-semibold tracking-tight text-red-900">
               {licences.filter((licence) => licence.status === "expired").length}
+            </p>
+          </div>
+          <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 ring-1 ring-slate-900/5">
+            <p className="text-sm font-medium text-slate-600">Gun courses</p>
+            <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">
+              {courses.length}
             </p>
           </div>
         </CardContent>
@@ -61,9 +67,14 @@ export default async function DashboardPage() {
           {licences.length === 0 ? (
             <p className="text-sm text-slate-600">No licences yet. Add one to start tracking.</p>
           ) : null}
-          <Button asChild variant="outline">
-            <Link href="/dashboard/licences">Manage licences</Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline">
+              <Link href="/dashboard/gun-licences">Manage gun licences</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/dashboard/gun-courses">Manage gun courses</Link>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

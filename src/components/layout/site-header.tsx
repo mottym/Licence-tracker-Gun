@@ -14,13 +14,15 @@ type NavItem = {
 
 const baseItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", match: "/dashboard" },
-  { href: "/dashboard/licences", label: "My Licences", match: "/dashboard/licences" },
+  { href: "/dashboard/gun-licences", label: "Gun Licences", match: "/dashboard/gun-licences" },
+  { href: "/dashboard/gun-courses", label: "Gun Courses", match: "/dashboard/gun-courses" },
   { href: "/dashboard/settings", label: "Settings", match: "/dashboard/settings" },
 ];
 
 const adminNavItems: NavItem[] = [
   { href: "/admin", label: "Admin", match: "/admin", exact: true },
   { href: "/admin/users", label: "Users", match: "/admin/users" },
+  { href: "/admin/taxonomy", label: "Taxonomy", match: "/admin/taxonomy" },
 ];
 
 interface SiteHeaderProps {
