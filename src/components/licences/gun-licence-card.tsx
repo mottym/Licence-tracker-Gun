@@ -1,0 +1,146 @@
+import { CalendarClock, Hash, Image as ImageIcon, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { formatDate } from "@/lib/utils";
+import { statusColor, statusLabel } from "@/lib/licences/calculate";
+import { ConfirmDeleteButton } from "@/components/licences/confirm-delete-button";
+import { GunLicenceFormDialog } from "@/components/licences/gun-licence-form-dialog";
+import type {
+  GunLicenceWithStatus,
+  Jurisdiction,
+  RecordType,
+} from "@/types/database";
+
+interface GunLicenceCardProps {
+  licence: GunLicenceWithStatus;
+  jurisdictions: Jurisdiction[];
+  licenceTypes: RecordType[];
+  renewAction: (formData: FormData) => Promise<void> | void;
+  updateAction: (formData: FormData) => Promise<void> | void;
+  confirmExpiredAction: (formData: FormData) => Promise<void> | void;
+  deleteAction: (formData: FormData) => Promise<void> | void;
+}
+
+export function GunLicenceCard({
+  licence,
+  jurisdictions,
+  licenceTypes,
+  renewAction,
+  updateAction,
+  confirmExpiredAction,
+  deleteAction,
+}: GunLicenceCardProps) {
+  const today = new Date().toISOString().split("T")[0];
+  const jurisdictionName = licence.jurisdictions?.name ?? licence.states?.name ?? "Unknown jurisdiction";
+  const typeName = licence.record_types?.name ?? "Uncategorized";
+  const stateCode = licence.states?.code ?? licence.jurisdictions?.states?.code;
+
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-base font-semibold text-slate-900">{typeName}</p>
+          <p className="mt-0.5 flex items-center gap-1.5 text-sm text-slate-500">
+            <MapPin className="h-3.5 w-3.5" />
+            {jurisdictionName}
+            {stateCode ? <span className="text-slate-400">· {stateCode}</span> : null}
+          </p>
+        </div>
+        <span
+          className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${statusColor(licence.status)}`}
+        >
+          {statusLabel(licence.status)}
+        </span>
+      </div>
+
+      <dl className="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+        <Field icon={<Hash className="h-3.5 w-3.5" />} label="Licence #">
+          {licence.licence_number ?? "Not set"}
+        </Field>
+        <Field icon={<CalendarClock className="h-3.5 w-3.5" />} label="Last renewed">
+          {formatDate(licence.last_renewed_at)}
+        </Field>
+        <Field icon={<CalendarClock className="h-3.5 w-3.5" />} label="Renewal opens">
+          {formatDate(licence.startRenewalBy)}
+        </Field>
+        <Field icon={<CalendarClock className="h-3.5 w-3.5" />} label="Expires">
+          {formatDate(licence.expiresAt)}
+        </Field>
+      </dl>
+
+      {licence.photo_signed_url ? (
+        <a
+          href={licence.photo_signed_url}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
+        >
+          <ImageIcon className="h-3.5 w-3.5" />
+          View licence photo
+        </a>
+      ) : null}
+
+      <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+        <form action={renewAction} className="flex items-center gap-2">
+          <input type="hidden" name="record_id" value={licence.id} />
+          <Input
+            name="renewed_at"
+            type="date"
+            defaultValue={today}
+            required
+            className="h-9 w-[160px]"
+            aria-label="Renewal date"
+          />
+          <Button type="submit" variant="secondary" size="sm">
+            Renew
+          </Button>
+        </form>
+
+        <GunLicenceFormDialog
+          mode="edit"
+          licence={licence}
+          jurisdictions={jurisdictions}
+          licenceTypes={licenceTypes}
+          action={updateAction}
+        />
+
+        <form action={confirmExpiredAction}>
+          <input type="hidden" name="record_id" value={licence.id} />
+          <input
+            type="hidden"
+            name="manually_marked_expired"
+            value={licence.manually_marked_expired ? "false" : "true"}
+          />
+          <Button type="submit" variant="outline" size="sm">
+            {licence.manually_marked_expired ? "Clear expired" : "Mark expired"}
+          </Button>
+        </form>
+
+        <form action={deleteAction} className="ml-auto">
+          <input type="hidden" name="record_id" value={licence.id} />
+          <ConfirmDeleteButton type="submit" variant="ghost" size="sm">
+            Delete
+          </ConfirmDeleteButton>
+        </form>
+      </div>
+    </article>
+  );
+}
+
+function Field({
+  icon,
+  label,
+  children,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-2 text-slate-600">
+      <span className="text-slate-400">{icon}</span>
+      <span className="text-xs uppercase tracking-wide text-slate-400">{label}</span>
+      <span className="ml-auto text-slate-700">{children}</span>
+    </div>
+  );
+}

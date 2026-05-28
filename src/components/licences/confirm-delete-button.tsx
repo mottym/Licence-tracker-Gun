@@ -10,7 +10,7 @@ interface ConfirmDeleteButtonProps extends Omit<ButtonProps, "onClick"> {
 }
 
 export function ConfirmDeleteButton({
-  message = "Are you sure you want to delete this licence?",
+  message = "Are you sure you want to delete this record? This cannot be undone.",
   pendingLabel = "Deleting...",
   children,
   disabled,

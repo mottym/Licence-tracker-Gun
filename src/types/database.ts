@@ -96,23 +96,6 @@ export interface StateRules {
   renewal_processing_days: number;
 }
 
-export interface Licence {
-  id: string;
-  user_id: string;
-  state_id: string;
-  type: string;
-  last_renewed_at: string;
-  birth_month: number | null;
-  birth_day: number | null;
-  manually_marked_expired: boolean;
-  licence_number: string | null;
-  notes: string | null;
-  photo_url: string | null;
-  created_at: string;
-  updated_at: string;
-  states?: State | null;
-}
-
 export interface NotificationPreferences {
   id: string;
   user_id: string;
@@ -139,16 +122,6 @@ export interface NotificationLog {
   channel: "email" | "push";
   notification_type: string;
   sent_at: string;
-}
-
-export interface LicenceWithStatus extends Licence {
-  status: LicenceStatus;
-  expiresAt: Date;
-  startRenewalBy: Date;
-  daysUntilRenewalWindow: number;
-  daysUntilExpiry: number;
-  rules: StateRules;
-  photo_signed_url?: string | null;
 }
 
 export interface GunLicence {

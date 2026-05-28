@@ -29,6 +29,19 @@ async function uploadPhoto(params: {
   return path;
 }
 
+async function resolveStateIdFromJurisdiction(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  jurisdictionId: FormDataEntryValue | null,
+): Promise<string | null> {
+  if (typeof jurisdictionId !== "string" || jurisdictionId.length === 0) return null;
+  const { data } = await supabase
+    .from("jurisdictions")
+    .select("state_id")
+    .eq("id", jurisdictionId)
+    .maybeSingle();
+  return data?.state_id ?? null;
+}
+
 export async function createGunLicence(formData: FormData) {
   const supabase = await createClient();
   const {
@@ -36,12 +49,15 @@ export async function createGunLicence(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) return;
 
+  const jurisdictionId = formData.get("jurisdiction_id");
+  const derivedStateId = await resolveStateIdFromJurisdiction(supabase, jurisdictionId);
+
   const { data: created } = await supabase
     .from("gun_licences")
     .insert({
       user_id: user.id,
-      state_id: optionalText(formData.get("state_id")),
-      jurisdiction_id: formData.get("jurisdiction_id"),
+      state_id: derivedStateId,
+      jurisdiction_id: jurisdictionId,
       record_type_id: formData.get("record_type_id"),
       issued_at: optionalText(formData.get("issued_at")),
       last_renewed_at: formData.get("last_renewed_at"),
@@ -97,11 +113,14 @@ export async function updateGunLicence(formData: FormData) {
     await supabase.storage.from(PHOTOS_BUCKET).remove([existing.photo_url]);
   }
 
+  const jurisdictionId = formData.get("jurisdiction_id");
+  const derivedStateId = await resolveStateIdFromJurisdiction(supabase, jurisdictionId);
+
   await supabase
     .from("gun_licences")
     .update({
-      state_id: optionalText(formData.get("state_id")),
-      jurisdiction_id: formData.get("jurisdiction_id"),
+      state_id: derivedStateId,
+      jurisdiction_id: jurisdictionId,
       record_type_id: formData.get("record_type_id"),
       issued_at: optionalText(formData.get("issued_at")),
       last_renewed_at: formData.get("last_renewed_at"),
