@@ -4,7 +4,6 @@ import type {
   GunCourseWithStatus,
   GunLicenceWithStatus,
   Jurisdiction,
-  LicenceWithStatus,
   Organization,
   RecordType,
   State,
@@ -28,11 +27,6 @@ export async function getStates() {
     .select("*, state_groups(*)")
     .order("name", { ascending: true });
   return (data ?? []) as State[];
-}
-
-export async function getUserLicences(): Promise<LicenceWithStatus[]> {
-  const gunLicences = await getGunLicences();
-  return gunLicences as LicenceWithStatus[];
 }
 
 export async function getTaxonomyOptions() {
@@ -84,7 +78,7 @@ export async function getGunLicences(): Promise<GunLicenceWithStatus[]> {
       );
       return { ...licence, rules, ...status };
     })
-    .filter((value): value is LicenceWithStatus => Boolean(value));
+    .filter((value): value is GunLicenceWithStatus => Boolean(value));
 
   const licencesWithPhotos = await Promise.all(
     licencesWithStatus.map(async (licence) => {
