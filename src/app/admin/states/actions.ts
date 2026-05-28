@@ -26,6 +26,7 @@ export async function updateStateRules(formData: FormData) {
   const name = optionalText(formData.get("name"));
   const code = optionalText(formData.get("code"));
   const gunRenewalUrl = optionalText(formData.get("gun_renewal_url"));
+  const expiresOnBirthday = formData.get("expires_on_birthday") === "on";
 
   await supabase
     .from("states")
@@ -36,6 +37,7 @@ export async function updateStateRules(formData: FormData) {
       expiration_months: expirationMonths,
       renewal_processing_days: renewalProcessingDays,
       gun_renewal_url: gunRenewalUrl,
+      expires_on_birthday: expiresOnBirthday,
     })
     .eq("id", stateId);
 
@@ -57,6 +59,7 @@ export async function createState(formData: FormData) {
     expiration_months: optionalNumber(formData.get("expiration_months")),
     renewal_processing_days: optionalNumber(formData.get("renewal_processing_days")),
     gun_renewal_url: optionalText(formData.get("gun_renewal_url")),
+    expires_on_birthday: formData.get("expires_on_birthday") === "on",
   });
 
   revalidatePath("/admin/states");

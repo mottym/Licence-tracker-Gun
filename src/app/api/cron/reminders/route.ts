@@ -31,7 +31,12 @@ export async function GET(request: Request) {
     };
     if (!rules.expiration_months || rules.renewal_processing_days == null) continue;
 
-    const status = getLicenceStatus(new Date(licence.last_renewed_at), rules);
+    const status = getLicenceStatus(new Date(licence.last_renewed_at), rules, {
+      manuallyMarkedExpired: Boolean(licence.manually_marked_expired),
+      expiresOnBirthday: Boolean(licence.states?.expires_on_birthday),
+      birthMonth: licence.birth_month,
+      birthDay: licence.birth_day,
+    });
     const prefs = licence.notification_preferences?.[0];
     const notifyDays = prefs?.notify_days_before ?? DEFAULT_NOTIFY_DAYS;
     const type = shouldNotifyToday(status.daysUntilRenewalWindow, notifyDays);

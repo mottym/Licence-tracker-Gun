@@ -39,7 +39,16 @@ export async function getUserLicences(): Promise<LicenceWithStatus[]> {
     .map((licence) => {
       const rules = licence.states ? resolveStateRules(licence.states as State) : null;
       if (!rules) return null;
-      const status = getLicenceStatus(new Date(licence.last_renewed_at), rules);
+      const status = getLicenceStatus(
+        new Date(licence.last_renewed_at),
+        rules,
+        {
+          manuallyMarkedExpired: Boolean(licence.manually_marked_expired),
+          expiresOnBirthday: Boolean(licence.states?.expires_on_birthday),
+          birthMonth: licence.birth_month,
+          birthDay: licence.birth_day,
+        },
+      );
       return { ...licence, rules, ...status };
     })
     .filter((value): value is LicenceWithStatus => Boolean(value));

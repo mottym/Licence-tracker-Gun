@@ -62,6 +62,8 @@ export async function createLicence(formData: FormData) {
     state_id: formData.get("state_id"),
     last_renewed_at: formData.get("last_renewed_at"),
       type: licenceType,
+      birth_month: formData.get("birth_month") ? Number(formData.get("birth_month")) : null,
+      birth_day: formData.get("birth_day") ? Number(formData.get("birth_day")) : null,
       licence_number: asOptionalText(formData.get("licence_number")),
       notes: asOptionalText(formData.get("notes")),
     })
@@ -86,12 +88,19 @@ export async function createLicence(formData: FormData) {
 
 export async function renewLicence(formData: FormData) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
   const licenceId = String(formData.get("licence_id"));
+  const renewedAt = asOptionalText(formData.get("renewed_at"));
+  if (!renewedAt) return;
 
   await supabase
     .from("licences")
-    .update({ last_renewed_at: new Date().toISOString().split("T")[0] })
-    .eq("id", licenceId);
+    .update({ last_renewed_at: renewedAt, manually_marked_expired: false })
+    .eq("id", licenceId)
+    .eq("user_id", user.id);
 
   revalidatePath("/dashboard/licences");
   revalidatePath("/dashboard");
@@ -133,10 +142,32 @@ export async function updateLicence(formData: FormData) {
       state_id: formData.get("state_id"),
       last_renewed_at: formData.get("last_renewed_at"),
       type: licenceType,
+      birth_month: formData.get("birth_month") ? Number(formData.get("birth_month")) : null,
+      birth_day: formData.get("birth_day") ? Number(formData.get("birth_day")) : null,
       licence_number: asOptionalText(formData.get("licence_number")),
       notes: asOptionalText(formData.get("notes")),
       photo_url: updatedPhotoPath,
     })
+    .eq("id", licenceId)
+    .eq("user_id", user.id);
+
+  revalidatePath("/dashboard/licences");
+  revalidatePath("/dashboard");
+}
+
+export async function confirmExpired(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const licenceId = String(formData.get("licence_id"));
+  const value = formData.get("manually_marked_expired") === "true";
+
+  await supabase
+    .from("licences")
+    .update({ manually_marked_expired: value })
     .eq("id", licenceId)
     .eq("user_id", user.id);
 

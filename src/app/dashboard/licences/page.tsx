@@ -1,4 +1,4 @@
-import { createLicence, deleteLicence, renewLicence, updateLicence } from "./actions";
+import { confirmExpired, createLicence, deleteLicence, renewLicence, updateLicence } from "./actions";
 import { getStates, getUserLicences } from "@/lib/data";
 import { formatDate } from "@/lib/utils";
 import { statusColor, statusLabel } from "@/lib/licences/calculate";
@@ -12,6 +12,7 @@ import { RenewAction } from "@/components/licences/renew-action";
 
 export default async function LicencesPage() {
   const [states, licences] = await Promise.all([getStates(), getUserLicences()]);
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="space-y-6">
@@ -66,6 +67,14 @@ export default async function LicencesPage() {
               <Label htmlFor="photo">Photo (optional)</Label>
               <Input id="photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp" />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="birth_month">Birth month (for birthday-expiring licences)</Label>
+              <Input id="birth_month" name="birth_month" type="number" min={1} max={12} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="birth_day">Birth day (for birthday-expiring licences)</Label>
+              <Input id="birth_day" name="birth_day" type="number" min={1} max={31} />
+            </div>
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="notes">Notes (optional)</Label>
               <textarea
@@ -118,10 +127,14 @@ export default async function LicencesPage() {
               <div className="mt-3 flex gap-2">
                 <form action={renewLicence}>
                   <input type="hidden" name="licence_id" value={licence.id} />
-                  <RenewAction
-                    isExternal={isGunRelatedType(licence.type)}
-                    externalUrl={licence.states?.gun_renewal_url ?? null}
-                  />
+                  {isGunRelatedType(licence.type) && licence.states?.gun_renewal_url ? (
+                    <RenewAction isExternal externalUrl={licence.states.gun_renewal_url} />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Input name="renewed_at" type="date" defaultValue={today} required className="h-10 w-[170px]" />
+                      <RenewAction isExternal={false} externalUrl={null} />
+                    </div>
+                  )}
                 </form>
                 <form action={deleteLicence}>
                   <input type="hidden" name="licence_id" value={licence.id} />
@@ -130,6 +143,17 @@ export default async function LicencesPage() {
                   </ConfirmDeleteButton>
                 </form>
               </div>
+              <form action={confirmExpired} className="mt-3 flex items-center gap-2">
+                <input type="hidden" name="licence_id" value={licence.id} />
+                <input
+                  type="hidden"
+                  name="manually_marked_expired"
+                  value={licence.manually_marked_expired ? "false" : "true"}
+                />
+                <Button type="submit" variant="outline">
+                  {licence.manually_marked_expired ? "Clear expired confirmation" : "Confirm expired"}
+                </Button>
+              </form>
               <form action={updateLicence} className="mt-4 grid gap-2 border-t border-slate-100 pt-3 md:grid-cols-2">
                 <input type="hidden" name="licence_id" value={licence.id} />
                 <div className="space-y-2">
@@ -177,6 +201,28 @@ export default async function LicencesPage() {
                 <div className="space-y-2">
                   <Label htmlFor={`edit_number_${licence.id}`}>Licence number</Label>
                   <Input id={`edit_number_${licence.id}`} name="licence_number" defaultValue={licence.licence_number ?? ""} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`edit_birth_month_${licence.id}`}>Birth month</Label>
+                  <Input
+                    id={`edit_birth_month_${licence.id}`}
+                    name="birth_month"
+                    type="number"
+                    min={1}
+                    max={12}
+                    defaultValue={licence.birth_month ?? ""}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`edit_birth_day_${licence.id}`}>Birth day</Label>
+                  <Input
+                    id={`edit_birth_day_${licence.id}`}
+                    name="birth_day"
+                    type="number"
+                    min={1}
+                    max={31}
+                    defaultValue={licence.birth_day ?? ""}
+                  />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor={`edit_notes_${licence.id}`}>Notes</Label>

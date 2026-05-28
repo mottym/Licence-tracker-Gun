@@ -37,6 +37,10 @@ export default async function AdminStatesPage() {
           <Input name="expiration_months" type="number" min={1} placeholder="Months" />
           <Input name="renewal_processing_days" type="number" min={0} placeholder="Processing days" />
           <Input name="gun_renewal_url" type="url" placeholder="Gun renewal URL" />
+          <label className="flex h-10 items-center gap-2 rounded-md border border-slate-300 px-2 text-sm">
+            <input type="checkbox" name="expires_on_birthday" />
+            Expires on birthday
+          </label>
           <Button type="submit">Add custom state</Button>
         </form>
 
@@ -78,6 +82,10 @@ export default async function AdminStatesPage() {
                 placeholder="Gun renewal URL"
                 defaultValue={state.gun_renewal_url ?? ""}
               />
+              <label className="flex h-10 items-center gap-2 rounded-md border border-slate-300 px-2 text-sm">
+                <input type="checkbox" name="expires_on_birthday" defaultChecked={state.expires_on_birthday} />
+                Birthday expiry
+              </label>
               <Button type="submit" variant="secondary">
                 Save
               </Button>

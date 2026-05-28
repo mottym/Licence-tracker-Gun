@@ -39,6 +39,7 @@ export interface State {
   group_id: string | null;
   is_custom: boolean;
   gun_renewal_url: string | null;
+  expires_on_birthday: boolean;
   expiration_months: number | null;
   renewal_processing_days: number | null;
   created_at: string;
@@ -57,6 +58,9 @@ export interface Licence {
   state_id: string;
   type: string;
   last_renewed_at: string;
+  birth_month: number | null;
+  birth_day: number | null;
+  manually_marked_expired: boolean;
   licence_number: string | null;
   notes: string | null;
   photo_url: string | null;

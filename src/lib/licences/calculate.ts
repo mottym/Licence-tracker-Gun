@@ -36,6 +36,22 @@ export function getExpiresAt(lastRenewedAt: Date, rules: StateRules): Date {
   return addMonths(lastRenewedAt, rules.expiration_months);
 }
 
+function getBirthdayExpiry(
+  lastRenewedAt: Date,
+  rules: StateRules,
+  birthMonth: number,
+  birthDay: number,
+): Date {
+  const yearsToAdd = Math.max(1, Math.floor(rules.expiration_months / 12));
+  let year = lastRenewedAt.getFullYear() + yearsToAdd;
+  let candidate = new Date(year, birthMonth - 1, birthDay);
+  if (candidate <= lastRenewedAt) {
+    year += 1;
+    candidate = new Date(year, birthMonth - 1, birthDay);
+  }
+  return candidate;
+}
+
 export function getStartRenewalBy(expiresAt: Date, rules: StateRules): Date {
   const result = new Date(expiresAt);
   result.setDate(result.getDate() - rules.renewal_processing_days);
@@ -45,6 +61,12 @@ export function getStartRenewalBy(expiresAt: Date, rules: StateRules): Date {
 export function getLicenceStatus(
   lastRenewedAt: Date,
   rules: StateRules,
+  options: {
+    manuallyMarkedExpired?: boolean;
+    expiresOnBirthday?: boolean;
+    birthMonth?: number | null;
+    birthDay?: number | null;
+  } = {},
   now: Date = new Date(),
 ): {
   status: LicenceStatus;
@@ -53,14 +75,19 @@ export function getLicenceStatus(
   daysUntilRenewalWindow: number;
   daysUntilExpiry: number;
 } {
-  const expiresAt = getExpiresAt(lastRenewedAt, rules);
+  const expiresAt =
+    options.expiresOnBirthday && options.birthMonth && options.birthDay
+      ? getBirthdayExpiry(lastRenewedAt, rules, options.birthMonth, options.birthDay)
+      : getExpiresAt(lastRenewedAt, rules);
   const startRenewalBy = getStartRenewalBy(expiresAt, rules);
   const daysUntilRenewalWindow = daysBetween(now, startRenewalBy);
   const daysUntilExpiry = daysBetween(now, expiresAt);
 
   let status: LicenceStatus;
 
-  if (now > expiresAt) {
+  if (options.manuallyMarkedExpired) {
+    status = "expired";
+  } else if (now > expiresAt) {
     status = "expired";
   } else if (now >= startRenewalBy) {
     status = "renewal_open";
