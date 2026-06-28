@@ -43,6 +43,7 @@ interface GunLicenceFormDialogProps {
   triggerLabel?: string;
   triggerVariant?: "default" | "secondary" | "outline" | "ghost";
   triggerSize?: "default" | "sm" | "lg";
+  triggerClassName?: string;
 }
 
 export function GunLicenceFormDialog({
@@ -54,6 +55,7 @@ export function GunLicenceFormDialog({
   triggerLabel,
   triggerVariant,
   triggerSize,
+  triggerClassName,
 }: GunLicenceFormDialogProps) {
   const [open, setOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -80,12 +82,20 @@ export function GunLicenceFormDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {mode === "create" ? (
-          <Button variant={triggerVariant ?? "default"} size={triggerSize ?? "default"}>
+          <Button
+            variant={triggerVariant ?? "default"}
+            size={triggerSize ?? "default"}
+            className={triggerClassName}
+          >
             <Plus className="h-4 w-4" />
             {triggerLabel ?? "Add licence"}
           </Button>
         ) : (
-          <Button variant={triggerVariant ?? "outline"} size={triggerSize ?? "sm"}>
+          <Button
+            variant={triggerVariant ?? "outline"}
+            size={triggerSize ?? "sm"}
+            className={triggerClassName}
+          >
             <Pencil className="h-3.5 w-3.5" />
             {triggerLabel ?? "Edit"}
           </Button>

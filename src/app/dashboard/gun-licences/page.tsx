@@ -18,7 +18,7 @@ export default async function GunLicencesPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
+      <header className="sticky top-14 z-20 -mx-4 flex flex-wrap items-end justify-between gap-4 border-b border-slate-200/80 bg-slate-50/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 md:top-0 lg:-mx-8 lg:px-8">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Gun licences</h1>
           <p className="mt-1 text-sm text-slate-500">

@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import {
   GraduationCap,
   LayoutDashboard,
+  Layers,
+  Map,
   Menu,
   Settings,
   ShieldCheck,
@@ -48,8 +50,10 @@ const settingsSection: NavSection = {
 const adminSection: NavSection = {
   label: "Admin",
   items: [
-    { href: "/admin", label: "Overview", match: "/admin", icon: ShieldCheck, exact: true },
+    { href: "/admin", label: "Admin home", match: "/admin", icon: ShieldCheck, exact: true },
     { href: "/admin/users", label: "Users", match: "/admin/users", icon: Users },
+    { href: "/admin/states", label: "States", match: "/admin/states", icon: Map },
+    { href: "/admin/groups", label: "Groups", match: "/admin/groups", icon: Layers },
     { href: "/admin/taxonomy", label: "Taxonomy", match: "/admin/taxonomy", icon: Sliders },
   ],
 };

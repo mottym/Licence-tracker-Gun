@@ -1,10 +1,9 @@
 import { Building2, CalendarCheck, CalendarClock, FileCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { formatDate } from "@/lib/utils";
 import { statusColor, statusLabel } from "@/lib/licences/calculate";
-import { ConfirmDeleteButton } from "@/components/licences/confirm-delete-button";
+import { CardActionsMenu } from "@/components/licences/card-actions-menu";
 import { GunCourseFormDialog } from "@/components/licences/gun-course-form-dialog";
+import { RenewPopover } from "@/components/licences/renew-popover";
 import type {
   GunCourseWithStatus,
   Organization,
@@ -30,7 +29,6 @@ export function GunCourseCard({
   confirmExpiredAction,
   deleteAction,
 }: GunCourseCardProps) {
-  const today = new Date().toISOString().split("T")[0];
   const requiresRenewal = Boolean(course.record_types?.requires_renewal);
 
   return (
@@ -79,22 +77,9 @@ export function GunCourseCard({
         </a>
       ) : null}
 
-      <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+      <div className="mt-5 flex items-center gap-2 border-t border-slate-100 pt-4">
         {requiresRenewal ? (
-          <form action={renewAction} className="flex items-center gap-2">
-            <input type="hidden" name="record_id" value={course.id} />
-            <Input
-              name="renewed_at"
-              type="date"
-              defaultValue={today}
-              required
-              className="h-9 w-[160px]"
-              aria-label="Renewal date"
-            />
-            <Button type="submit" variant="secondary" size="sm">
-              Renew
-            </Button>
-          </form>
+          <RenewPopover recordId={course.id} action={renewAction} />
         ) : null}
 
         <GunCourseFormDialog
@@ -105,24 +90,15 @@ export function GunCourseCard({
           action={updateAction}
         />
 
-        <form action={confirmExpiredAction}>
-          <input type="hidden" name="record_id" value={course.id} />
-          <input
-            type="hidden"
-            name="manually_marked_expired"
-            value={course.manually_marked_expired ? "false" : "true"}
+        <div className="ml-auto">
+          <CardActionsMenu
+            recordId={course.id}
+            isMarkedExpired={Boolean(course.manually_marked_expired)}
+            confirmExpiredAction={confirmExpiredAction}
+            deleteAction={deleteAction}
+            deleteConfirmMessage="Delete this gun course? This cannot be undone."
           />
-          <Button type="submit" variant="outline" size="sm">
-            {course.manually_marked_expired ? "Clear expired" : "Mark expired"}
-          </Button>
-        </form>
-
-        <form action={deleteAction} className="ml-auto">
-          <input type="hidden" name="record_id" value={course.id} />
-          <ConfirmDeleteButton type="submit" variant="ghost" size="sm">
-            Delete
-          </ConfirmDeleteButton>
-        </form>
+        </div>
       </div>
     </article>
   );

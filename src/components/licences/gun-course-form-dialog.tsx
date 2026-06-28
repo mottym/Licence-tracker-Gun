@@ -27,6 +27,7 @@ interface GunCourseFormDialogProps {
   course?: GunCourseWithStatus;
   triggerLabel?: string;
   triggerVariant?: "default" | "secondary" | "outline" | "ghost";
+  triggerClassName?: string;
 }
 
 export function GunCourseFormDialog({
@@ -37,6 +38,7 @@ export function GunCourseFormDialog({
   course,
   triggerLabel,
   triggerVariant,
+  triggerClassName,
 }: GunCourseFormDialogProps) {
   const [open, setOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -54,12 +56,12 @@ export function GunCourseFormDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {mode === "create" ? (
-          <Button variant={triggerVariant ?? "default"}>
+          <Button variant={triggerVariant ?? "default"} className={triggerClassName}>
             <Plus className="h-4 w-4" />
             {triggerLabel ?? "Add course"}
           </Button>
         ) : (
-          <Button variant={triggerVariant ?? "outline"} size="sm">
+          <Button variant={triggerVariant ?? "outline"} size="sm" className={triggerClassName}>
             <Pencil className="h-3.5 w-3.5" />
             {triggerLabel ?? "Edit"}
           </Button>
