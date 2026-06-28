@@ -180,3 +180,26 @@ export interface GunCourseWithStatus extends GunCourse {
   daysUntilExpiry: number | null;
   certificate_signed_url?: string | null;
 }
+
+export interface CustomLicence {
+  id: string;
+  user_id: string;
+  name: string;
+  issuer: string | null;
+  licence_number: string | null;
+  issued_at: string | null;
+  expires_at: string;
+  renewal_reminder_days: number;
+  notes: string | null;
+  photo_url: string | null;
+  manually_marked_expired: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CustomLicenceWithStatus extends CustomLicence {
+  status: LicenceStatus;
+  expiresAt: Date;
+  daysUntilExpiry: number;
+  photo_signed_url?: string | null;
+}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   GraduationCap,
+  IdCard,
   LayoutDashboard,
   Layers,
   Map,
@@ -39,6 +40,7 @@ const userSection: NavSection = {
     { href: "/dashboard", label: "Overview", match: "/dashboard", icon: LayoutDashboard, exact: true },
     { href: "/dashboard/gun-licences", label: "Gun licences", match: "/dashboard/gun-licences", icon: Target },
     { href: "/dashboard/gun-courses", label: "Gun courses", match: "/dashboard/gun-courses", icon: GraduationCap },
+    { href: "/dashboard/custom-licences", label: "Custom licences", match: "/dashboard/custom-licences", icon: IdCard },
   ],
 };
 
@@ -54,7 +56,7 @@ const adminSection: NavSection = {
     { href: "/admin/users", label: "Users", match: "/admin/users", icon: Users },
     { href: "/admin/states", label: "States", match: "/admin/states", icon: Map },
     { href: "/admin/groups", label: "Groups", match: "/admin/groups", icon: Layers },
-    { href: "/admin/taxonomy", label: "Taxonomy", match: "/admin/taxonomy", icon: Sliders },
+    { href: "/admin/taxonomy", label: "Categories", match: "/admin/taxonomy", icon: Sliders },
   ],
 };
 

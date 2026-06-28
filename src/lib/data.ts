@@ -1,6 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
-import { getLicenceStatus, resolveStateRules } from "@/lib/licences/calculate";
+import {
+  getCustomLicenceStatus,
+  getLicenceStatus,
+  resolveStateRules,
+} from "@/lib/licences/calculate";
 import type {
+  CustomLicenceWithStatus,
   GunCourseWithStatus,
   GunLicenceWithStatus,
   Jurisdiction,
@@ -142,4 +147,39 @@ export async function getGunCourses(): Promise<GunCourseWithStatus[]> {
   );
 
   return withSignedCertificates;
+}
+
+export async function getCustomLicences(): Promise<CustomLicenceWithStatus[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data } = await supabase
+    .from("custom_licences")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("expires_at", { ascending: true });
+
+  const withStatus = (data ?? []).map((licence) => {
+    const status = getCustomLicenceStatus(
+      new Date(licence.expires_at),
+      licence.renewal_reminder_days ?? 60,
+      { manuallyMarkedExpired: Boolean(licence.manually_marked_expired) },
+    );
+    return { ...licence, ...status } as CustomLicenceWithStatus;
+  });
+
+  const withSignedPhotos = await Promise.all(
+    withStatus.map(async (licence) => {
+      if (!licence.photo_url) return { ...licence, photo_signed_url: null };
+      const { data: signed } = await supabase.storage
+        .from("licence-photos")
+        .createSignedUrl(licence.photo_url, 3600);
+      return { ...licence, photo_signed_url: signed?.signedUrl ?? null };
+    }),
+  );
+
+  return withSignedPhotos;
 }

@@ -45,13 +45,13 @@ export default async function AdminHomePage() {
       <Card>
         <CardHeader>
           <CardTitle>Quick links</CardTitle>
-          <CardDescription>Manage rules, states, and taxonomy</CardDescription>
+          <CardDescription>Manage rules, states, and categories</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p><Link className="underline" href="/admin/users">Users &amp; admins — promote or invite</Link></p>
           <p><Link className="underline" href="/admin/groups">Manage groups</Link></p>
           <p><Link className="underline" href="/admin/states">Manage states</Link></p>
-          <p><Link className="underline" href="/admin/taxonomy">Manage taxonomy</Link></p>
+          <p><Link className="underline" href="/admin/taxonomy">Manage categories</Link></p>
           <p className="text-slate-500">
             {taxonomyCounts.jurisdictions} jurisdictions · {taxonomyCounts.organizations} organizations ·{" "}
             {taxonomyCounts.recordTypes} record types

@@ -25,6 +25,13 @@ export default async function AdminTaxonomyPage() {
 
   return (
     <div className="space-y-4">
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Categories</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Jurisdictions, organizations, and record types used in the dropdowns when adding a licence or course.
+        </p>
+      </header>
+
       <Card>
         <CardHeader>
           <CardTitle>Jurisdictions</CardTitle>

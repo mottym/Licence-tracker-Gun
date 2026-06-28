@@ -129,6 +129,30 @@ export function statusLabel(status: LicenceStatus): string {
   }
 }
 
+export function getCustomLicenceStatus(
+  expiresAt: Date,
+  reminderDays: number,
+  options: { manuallyMarkedExpired?: boolean } = {},
+  now: Date = new Date(),
+): {
+  status: LicenceStatus;
+  expiresAt: Date;
+  daysUntilExpiry: number;
+} {
+  const daysUntilExpiry = daysBetween(now, expiresAt);
+
+  let status: LicenceStatus;
+  if (options.manuallyMarkedExpired || now > expiresAt) {
+    status = "expired";
+  } else if (daysUntilExpiry <= Math.max(0, reminderDays)) {
+    status = "renewal_soon";
+  } else {
+    status = "valid";
+  }
+
+  return { status, expiresAt, daysUntilExpiry };
+}
+
 export function statusColor(status: LicenceStatus): string {
   switch (status) {
     case "valid":

@@ -5,24 +5,42 @@ import {
   Bell,
   CalendarClock,
   GraduationCap,
+  IdCard,
   Target,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { getGunCourses, getGunLicences, getTaxonomyOptions } from "@/lib/data";
+import {
+  getCustomLicences,
+  getGunCourses,
+  getGunLicences,
+  getTaxonomyOptions,
+} from "@/lib/data";
 import { createGunLicence } from "@/app/dashboard/gun-licences/actions";
 import { createGunCourse } from "@/app/dashboard/gun-courses/actions";
+import { createCustomLicence } from "@/app/dashboard/custom-licences/actions";
 import { formatDate } from "@/lib/utils";
 import { statusColor, statusLabel } from "@/lib/licences/calculate";
 import { Button } from "@/components/ui/button";
 import { GunLicenceFormDialog } from "@/components/licences/gun-licence-form-dialog";
 import { GunCourseFormDialog } from "@/components/licences/gun-course-form-dialog";
+import { CustomLicenceFormDialog } from "@/components/licences/custom-licence-form-dialog";
 import { cn } from "@/lib/utils";
-import type { GunLicenceWithStatus } from "@/types/database";
+import type { LicenceStatus } from "@/types/database";
+
+type RenewalRow = {
+  id: string;
+  title: string;
+  subtitle: string;
+  status: LicenceStatus;
+  expiresAt: Date;
+  daysUntilExpiry: number;
+};
 
 export default async function DashboardPage() {
-  const [licences, courses, taxonomy] = await Promise.all([
+  const [licences, courses, customLicences, taxonomy] = await Promise.all([
     getGunLicences(),
     getGunCourses(),
+    getCustomLicences(),
     getTaxonomyOptions(),
   ]);
   const licenceTypes = taxonomy.recordTypes.filter(
@@ -32,13 +50,37 @@ export default async function DashboardPage() {
     (type) => type.record_categories?.key === "gun_course",
   );
 
-  const expiringSoonCount = licences.filter(
-    (licence) => licence.daysUntilExpiry <= 30 && licence.status !== "expired",
-  ).length;
-  const expiredCount = licences.filter((licence) => licence.status === "expired").length;
-  const validCount = licences.filter((licence) => licence.status === "valid").length;
+  const combinedRenewables: RenewalRow[] = [
+    ...licences.map<RenewalRow>((licence) => ({
+      id: `gun-licence-${licence.id}`,
+      title: licence.record_types?.name ?? "Gun licence",
+      subtitle:
+        licence.jurisdictions?.name ?? licence.states?.name ?? "Unknown jurisdiction",
+      status: licence.status,
+      expiresAt: licence.expiresAt,
+      daysUntilExpiry: licence.daysUntilExpiry,
+    })),
+    ...customLicences.map<RenewalRow>((licence) => ({
+      id: `custom-licence-${licence.id}`,
+      title: licence.name,
+      subtitle: licence.issuer ?? "Custom licence",
+      status: licence.status,
+      expiresAt: licence.expiresAt,
+      daysUntilExpiry: licence.daysUntilExpiry,
+    })),
+  ];
 
-  const upcomingRenewals: GunLicenceWithStatus[] = [...licences]
+  const expiringSoonCount = combinedRenewables.filter(
+    (row) => row.daysUntilExpiry <= 30 && row.status !== "expired",
+  ).length;
+  const expiredCount = combinedRenewables.filter(
+    (row) => row.status === "expired",
+  ).length;
+  const validCount = combinedRenewables.filter(
+    (row) => row.status === "valid",
+  ).length;
+
+  const upcomingRenewals: RenewalRow[] = [...combinedRenewables]
     .sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry)
     .slice(0, 5);
 
@@ -51,7 +93,7 @@ export default async function DashboardPage() {
         </p>
       </header>
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard
           icon={Target}
           label="Gun licences"
@@ -65,6 +107,13 @@ export default async function DashboardPage() {
           value={courses.length}
           tone="slate"
           href="/dashboard/gun-courses"
+        />
+        <StatCard
+          icon={IdCard}
+          label="Custom licences"
+          value={customLicences.length}
+          tone="slate"
+          href="/dashboard/custom-licences"
         />
         <StatCard
           icon={CalendarClock}
@@ -100,28 +149,28 @@ export default async function DashboardPage() {
                 No licences yet. Add one to start tracking renewals.
               </li>
             ) : (
-              upcomingRenewals.map((licence) => (
+              upcomingRenewals.map((row) => (
                 <li
-                  key={licence.id}
+                  key={row.id}
                   className="flex flex-wrap items-center justify-between gap-3 px-6 py-3.5"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-slate-900">
-                      {licence.record_types?.name ?? "Licence"}
+                      {row.title}
                     </p>
                     <p className="truncate text-xs text-slate-500">
-                      {licence.jurisdictions?.name ?? licence.states?.name ?? "Unknown jurisdiction"}
+                      {row.subtitle}
                       {" · expires "}
-                      {formatDate(licence.expiresAt)}
+                      {formatDate(row.expiresAt)}
                     </p>
                   </div>
                   <span
                     className={cn(
                       "shrink-0 rounded-full px-2.5 py-1 text-xs font-medium",
-                      statusColor(licence.status),
+                      statusColor(row.status),
                     )}
                   >
-                    {statusLabel(licence.status)}
+                    {statusLabel(row.status)}
                   </span>
                 </li>
               ))
@@ -148,6 +197,13 @@ export default async function DashboardPage() {
               courseTypes={courseTypes}
               action={createGunCourse}
               triggerLabel="Add gun course"
+              triggerVariant="outline"
+              triggerClassName="w-full justify-start"
+            />
+            <CustomLicenceFormDialog
+              mode="create"
+              action={createCustomLicence}
+              triggerLabel="Add custom licence"
               triggerVariant="outline"
               triggerClassName="w-full justify-start"
             />
