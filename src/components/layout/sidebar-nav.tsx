@@ -7,7 +7,6 @@ import {
   GraduationCap,
   IdCard,
   LayoutDashboard,
-  Layers,
   Map,
   Menu,
   Settings,
@@ -55,7 +54,6 @@ const adminSection: NavSection = {
     { href: "/admin", label: "Admin home", match: "/admin", icon: ShieldCheck, exact: true },
     { href: "/admin/users", label: "Users", match: "/admin/users", icon: Users },
     { href: "/admin/states", label: "States", match: "/admin/states", icon: Map },
-    { href: "/admin/groups", label: "Groups", match: "/admin/groups", icon: Layers },
     { href: "/admin/taxonomy", label: "Categories", match: "/admin/taxonomy", icon: Sliders },
   ],
 };

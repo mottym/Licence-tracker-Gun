@@ -1,10 +1,20 @@
 import { NextResponse } from "next/server";
 import { format } from "date-fns";
 import { createServiceClient } from "@/lib/supabase/server";
-import { getLicenceStatus, shouldNotifyToday, DEFAULT_NOTIFY_DAYS } from "@/lib/licences/calculate";
+import {
+  getLicenceStatus,
+  resolveStateRules,
+  rollForwardLastRenewed,
+  shouldNotifyToday,
+  DEFAULT_NOTIFY_DAYS,
+} from "@/lib/licences/calculate";
 import { sendRenewalEmail } from "@/lib/notifications/email";
 import { sendPushNotification } from "@/lib/notifications/push";
 import type { State } from "@/types/database";
+
+function toIsoDate(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
 
 export async function GET(request: Request) {
   const auth = request.headers.get("authorization");
@@ -16,27 +26,45 @@ export async function GET(request: Request) {
 
   const { data: licences } = await supabase
     .from("gun_licences")
-    .select("*, states(*, state_groups(*)), profiles(email), notification_preferences(*), record_types(*)");
+    .select("*, states(*), profiles(email), notification_preferences(*), record_types(*)");
 
   let sent = 0;
+  let autoRenewed = 0;
 
   for (const licence of licences ?? []) {
     if (!licence.states) continue;
-    if (!licence.legacy_licence_id) continue;
-    const rules = {
-      expiration_months:
-        licence.states.expiration_months ?? (licence.states as State).state_groups?.expiration_months,
-      renewal_processing_days:
-        licence.states.renewal_processing_days ??
-        (licence.states as State).state_groups?.renewal_processing_days,
-    };
-    if (!rules.expiration_months || rules.renewal_processing_days == null) continue;
+    const rules = resolveStateRules(licence.states as State);
+    if (!rules) continue;
 
-    const status = getLicenceStatus(new Date(licence.last_renewed_at), rules, {
-      manuallyMarkedExpired: Boolean(licence.manually_marked_expired),
+    const renewalOptions = {
       expiresOnBirthday: Boolean(licence.states?.expires_on_birthday),
       birthMonth: licence.birth_month,
       birthDay: licence.birth_day,
+    };
+
+    // Auto-renew: advance the licence forward so it never lapses, then skip reminders.
+    if (licence.auto_renew) {
+      const rolled = rollForwardLastRenewed(
+        new Date(licence.last_renewed_at),
+        rules,
+        renewalOptions,
+      );
+      const rolledIso = toIsoDate(rolled);
+      if (rolledIso !== licence.last_renewed_at) {
+        await supabase
+          .from("gun_licences")
+          .update({ last_renewed_at: rolledIso, manually_marked_expired: false })
+          .eq("id", licence.id);
+        autoRenewed += 1;
+      }
+      continue;
+    }
+
+    if (!licence.legacy_licence_id) continue;
+
+    const status = getLicenceStatus(new Date(licence.last_renewed_at), rules, {
+      manuallyMarkedExpired: Boolean(licence.manually_marked_expired),
+      ...renewalOptions,
     });
     const prefs = licence.notification_preferences?.[0];
     const notifyDays = prefs?.notify_days_before ?? DEFAULT_NOTIFY_DAYS;
@@ -92,5 +120,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, sent });
+  return NextResponse.json({ ok: true, sent, autoRenewed });
 }

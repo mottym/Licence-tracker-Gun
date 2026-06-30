@@ -78,6 +78,7 @@ export interface RecordType {
   category_id: string;
   jurisdiction_id: string | null;
   organization_id: string | null;
+  state_id: string | null;
   key: string;
   name: string;
   requires_renewal: boolean;
@@ -89,6 +90,7 @@ export interface RecordType {
   record_categories?: RecordCategory | null;
   jurisdictions?: Jurisdiction | null;
   organizations?: Organization | null;
+  states?: State | null;
 }
 
 export interface StateRules {
@@ -129,7 +131,7 @@ export interface GunLicence {
   legacy_licence_id: string | null;
   user_id: string;
   state_id: string | null;
-  jurisdiction_id: string;
+  jurisdiction_id: string | null;
   record_type_id: string;
   issued_at: string | null;
   last_renewed_at: string;
@@ -138,6 +140,7 @@ export interface GunLicence {
   photo_url: string | null;
   birth_month: number | null;
   birth_day: number | null;
+  auto_renew: boolean;
   manually_marked_expired: boolean;
   created_at: string;
   updated_at: string;

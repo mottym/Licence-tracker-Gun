@@ -29,19 +29,6 @@ async function uploadPhoto(params: {
   return path;
 }
 
-async function resolveStateIdFromJurisdiction(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  jurisdictionId: FormDataEntryValue | null,
-): Promise<string | null> {
-  if (typeof jurisdictionId !== "string" || jurisdictionId.length === 0) return null;
-  const { data } = await supabase
-    .from("jurisdictions")
-    .select("state_id")
-    .eq("id", jurisdictionId)
-    .maybeSingle();
-  return data?.state_id ?? null;
-}
-
 export async function createGunLicence(formData: FormData) {
   const supabase = await createClient();
   const {
@@ -49,15 +36,14 @@ export async function createGunLicence(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) return;
 
-  const jurisdictionId = formData.get("jurisdiction_id");
-  const derivedStateId = await resolveStateIdFromJurisdiction(supabase, jurisdictionId);
+  const stateId = optionalText(formData.get("state_id"));
 
   const { data: created } = await supabase
     .from("gun_licences")
     .insert({
       user_id: user.id,
-      state_id: derivedStateId,
-      jurisdiction_id: jurisdictionId,
+      state_id: stateId,
+      jurisdiction_id: null,
       record_type_id: formData.get("record_type_id"),
       issued_at: optionalText(formData.get("issued_at")),
       last_renewed_at: formData.get("last_renewed_at"),
@@ -65,6 +51,7 @@ export async function createGunLicence(formData: FormData) {
       notes: optionalText(formData.get("notes")),
       birth_month: formData.get("birth_month") ? Number(formData.get("birth_month")) : null,
       birth_day: formData.get("birth_day") ? Number(formData.get("birth_day")) : null,
+      auto_renew: formData.get("auto_renew") === "on",
     })
     .select("id")
     .single();
@@ -113,14 +100,13 @@ export async function updateGunLicence(formData: FormData) {
     await supabase.storage.from(PHOTOS_BUCKET).remove([existing.photo_url]);
   }
 
-  const jurisdictionId = formData.get("jurisdiction_id");
-  const derivedStateId = await resolveStateIdFromJurisdiction(supabase, jurisdictionId);
+  const stateId = optionalText(formData.get("state_id"));
 
   await supabase
     .from("gun_licences")
     .update({
-      state_id: derivedStateId,
-      jurisdiction_id: jurisdictionId,
+      state_id: stateId,
+      jurisdiction_id: null,
       record_type_id: formData.get("record_type_id"),
       issued_at: optionalText(formData.get("issued_at")),
       last_renewed_at: formData.get("last_renewed_at"),
@@ -128,6 +114,7 @@ export async function updateGunLicence(formData: FormData) {
       notes: optionalText(formData.get("notes")),
       birth_month: formData.get("birth_month") ? Number(formData.get("birth_month")) : null,
       birth_day: formData.get("birth_day") ? Number(formData.get("birth_day")) : null,
+      auto_renew: formData.get("auto_renew") === "on",
       photo_url: photoUrl,
     })
     .eq("id", recordId)

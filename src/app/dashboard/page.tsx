@@ -13,6 +13,7 @@ import {
   getCustomLicences,
   getGunCourses,
   getGunLicences,
+  getStates,
   getTaxonomyOptions,
 } from "@/lib/data";
 import { createGunLicence } from "@/app/dashboard/gun-licences/actions";
@@ -37,11 +38,12 @@ type RenewalRow = {
 };
 
 export default async function DashboardPage() {
-  const [licences, courses, customLicences, taxonomy] = await Promise.all([
+  const [licences, courses, customLicences, taxonomy, states] = await Promise.all([
     getGunLicences(),
     getGunCourses(),
     getCustomLicences(),
     getTaxonomyOptions(),
+    getStates(),
   ]);
   const licenceTypes = taxonomy.recordTypes.filter(
     (type) => type.record_categories?.key === "gun_licence",
@@ -184,7 +186,7 @@ export default async function DashboardPage() {
           <div className="mt-4 space-y-2">
             <GunLicenceFormDialog
               mode="create"
-              jurisdictions={taxonomy.jurisdictions}
+              states={states}
               licenceTypes={licenceTypes}
               action={createGunLicence}
               triggerLabel="Add gun licence"

@@ -6,12 +6,16 @@ import {
   renewGunLicence,
   updateGunLicence,
 } from "./actions";
-import { getGunLicences, getTaxonomyOptions } from "@/lib/data";
+import { getGunLicences, getStates, getTaxonomyOptions } from "@/lib/data";
 import { GunLicenceCard } from "@/components/licences/gun-licence-card";
 import { GunLicenceFormDialog } from "@/components/licences/gun-licence-form-dialog";
 
 export default async function GunLicencesPage() {
-  const [records, taxonomy] = await Promise.all([getGunLicences(), getTaxonomyOptions()]);
+  const [records, taxonomy, states] = await Promise.all([
+    getGunLicences(),
+    getTaxonomyOptions(),
+    getStates(),
+  ]);
   const licenceTypes = taxonomy.recordTypes.filter(
     (type) => type.record_categories?.key === "gun_licence",
   );
@@ -27,7 +31,7 @@ export default async function GunLicencesPage() {
         </div>
         <GunLicenceFormDialog
           mode="create"
-          jurisdictions={taxonomy.jurisdictions}
+          states={states}
           licenceTypes={licenceTypes}
           action={createGunLicence}
           triggerLabel="Add gun licence"
@@ -42,7 +46,7 @@ export default async function GunLicencesPage() {
             <GunLicenceCard
               key={licence.id}
               licence={licence}
-              jurisdictions={taxonomy.jurisdictions}
+              states={states}
               licenceTypes={licenceTypes}
               renewAction={renewGunLicence}
               updateAction={updateGunLicence}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Button, Dialog, HelperText, Portal, Text, TextInput } from "react-native-paper";
+import { Button, Dialog, HelperText, Portal, Switch, Text, TextInput } from "react-native-paper";
 import { DateField } from "@/components/DateField";
 import { PhotoPicker, type PickedAsset } from "@/components/PhotoPicker";
 import { SelectField } from "@/components/SelectField";
@@ -64,6 +64,7 @@ export function LicenceFormDialog({
   const [lastRenewedAt, setLastRenewedAt] = useState<string | null>(null);
   const [birthMonth, setBirthMonth] = useState("");
   const [birthDay, setBirthDay] = useState("");
+  const [autoRenew, setAutoRenew] = useState(false);
   const [notes, setNotes] = useState("");
   const [photo, setPhoto] = useState<PickedAsset | null>(null);
   const [removePhoto, setRemovePhoto] = useState(false);
@@ -80,6 +81,7 @@ export function LicenceFormDialog({
       setLastRenewedAt(licence.last_renewed_at);
       setBirthMonth(licence.birth_month ? String(licence.birth_month) : "");
       setBirthDay(licence.birth_day ? String(licence.birth_day) : "");
+      setAutoRenew(Boolean(licence.auto_renew));
       setNotes(licence.notes ?? "");
     } else {
       setJurisdictionId("");
@@ -89,6 +91,7 @@ export function LicenceFormDialog({
       setLastRenewedAt(toIsoDate(new Date()));
       setBirthMonth("");
       setBirthDay("");
+      setAutoRenew(false);
       setNotes("");
     }
     setPhoto(null);
@@ -130,6 +133,7 @@ export function LicenceFormDialog({
       last_renewed_at: lastRenewedAt,
       birth_month: birthMonth ? Number(birthMonth) : null,
       birth_day: birthDay ? Number(birthDay) : null,
+      auto_renew: autoRenew,
       notes: notes.trim() || null,
     };
 
@@ -204,6 +208,16 @@ export function LicenceFormDialog({
               onChange={setIssuedAt}
               optional
             />
+
+            <View style={styles.switchRow}>
+              <View style={styles.switchText}>
+                <Text variant="bodyLarge">Auto-renew</Text>
+                <Text variant="bodySmall" style={styles.switchHelper}>
+                  Automatically roll renewal dates forward so this licence stays current.
+                </Text>
+              </View>
+              <Switch value={autoRenew} onValueChange={setAutoRenew} />
+            </View>
 
             <Text variant="labelLarge" style={styles.sectionLabel}>
               Birthday (for states that expire on birthday)
@@ -295,6 +309,19 @@ const styles = StyleSheet.create({
   sectionLabel: {
     marginTop: 8,
     color: "#475569",
+  },
+  switchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    marginTop: 4,
+  },
+  switchText: {
+    flex: 1,
+  },
+  switchHelper: {
+    color: "#64748b",
   },
   error: {
     paddingHorizontal: 0,

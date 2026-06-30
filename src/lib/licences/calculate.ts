@@ -11,13 +11,6 @@ export function resolveStateRules(state: State): StateRules | null {
     };
   }
 
-  if (state.state_groups) {
-    return {
-      expiration_months: state.state_groups.expiration_months,
-      renewal_processing_days: state.state_groups.renewal_processing_days,
-    };
-  }
-
   return null;
 }
 
@@ -56,6 +49,40 @@ export function getStartRenewalBy(expiresAt: Date, rules: StateRules): Date {
   const result = new Date(expiresAt);
   result.setDate(result.getDate() - rules.renewal_processing_days);
   return result;
+}
+
+type RenewalDateOptions = {
+  expiresOnBirthday?: boolean;
+  birthMonth?: number | null;
+  birthDay?: number | null;
+};
+
+function computeExpiry(
+  lastRenewedAt: Date,
+  rules: StateRules,
+  options: RenewalDateOptions,
+): Date {
+  return options.expiresOnBirthday && options.birthMonth && options.birthDay
+    ? getBirthdayExpiry(lastRenewedAt, rules, options.birthMonth, options.birthDay)
+    : getExpiresAt(lastRenewedAt, rules);
+}
+
+// For auto-renew licences, advance the last-renewed date forward one cycle at a
+// time until the resulting expiry is in the future. Returns the effective
+// last-renewed date for the current active period.
+export function rollForwardLastRenewed(
+  lastRenewedAt: Date,
+  rules: StateRules,
+  options: RenewalDateOptions = {},
+  now: Date = new Date(),
+): Date {
+  let current = new Date(lastRenewedAt);
+  for (let i = 0; i < 1200; i += 1) {
+    const expiresAt = computeExpiry(current, rules, options);
+    if (expiresAt > now) break;
+    current = expiresAt;
+  }
+  return current;
 }
 
 export function getLicenceStatus(

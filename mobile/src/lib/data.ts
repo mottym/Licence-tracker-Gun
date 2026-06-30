@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { getLicenceStatus, resolveStateRules } from "@/lib/status";
+import { getLicenceStatus, resolveStateRules, rollForwardLastRenewed } from "@/lib/status";
 import type {
   GunCourseWithStatus,
   GunLicenceWithStatus,
@@ -37,7 +37,7 @@ export async function fetchGunLicences(): Promise<GunLicenceWithStatus[]> {
   const { data } = await supabase
     .from("gun_licences")
     .select(
-      "*, states(*, state_groups(*)), jurisdictions(*, states(*)), record_types(*)",
+      "*, states(*), jurisdictions(*, states(*)), record_types(*)",
     )
     .order("last_renewed_at", { ascending: false });
 
@@ -45,16 +45,18 @@ export async function fetchGunLicences(): Promise<GunLicenceWithStatus[]> {
     .map((licence) => {
       const rules = licence.states ? resolveStateRules(licence.states as State) : null;
       if (!rules) return null;
-      const status = getLicenceStatus(
-        new Date(licence.last_renewed_at),
-        rules,
-        {
-          manuallyMarkedExpired: Boolean(licence.manually_marked_expired),
-          expiresOnBirthday: Boolean(licence.states?.expires_on_birthday),
-          birthMonth: licence.birth_month,
-          birthDay: licence.birth_day,
-        },
-      );
+      const renewalOptions = {
+        expiresOnBirthday: Boolean(licence.states?.expires_on_birthday),
+        birthMonth: licence.birth_month,
+        birthDay: licence.birth_day,
+      };
+      const lastRenewed = licence.auto_renew
+        ? rollForwardLastRenewed(new Date(licence.last_renewed_at), rules, renewalOptions)
+        : new Date(licence.last_renewed_at);
+      const status = getLicenceStatus(lastRenewed, rules, {
+        manuallyMarkedExpired: Boolean(licence.manually_marked_expired),
+        ...renewalOptions,
+      });
       return { ...licence, rules, ...status } as GunLicenceWithStatus;
     })
     .filter((value): value is GunLicenceWithStatus => Boolean(value));
@@ -131,6 +133,7 @@ export interface GunLicenceInput {
   issued_at: string | null;
   birth_month: number | null;
   birth_day: number | null;
+  auto_renew: boolean;
   notes: string | null;
 }
 
@@ -150,6 +153,7 @@ export async function createGunLicence(input: GunLicenceInput): Promise<string |
       last_renewed_at: input.last_renewed_at,
       birth_month: input.birth_month,
       birth_day: input.birth_day,
+      auto_renew: input.auto_renew,
       notes: input.notes,
     })
     .select("id")
@@ -171,6 +175,7 @@ export async function updateGunLicence(id: string, input: GunLicenceInput): Prom
       last_renewed_at: input.last_renewed_at,
       birth_month: input.birth_month,
       birth_day: input.birth_day,
+      auto_renew: input.auto_renew,
       notes: input.notes,
     })
     .eq("id", id);

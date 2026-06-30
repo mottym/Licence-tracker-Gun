@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Plus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import type { GunLicenceWithStatus, Jurisdiction, RecordType } from "@/types/database";
+import type { GunLicenceWithStatus, RecordType, State } from "@/types/database";
 
 const MONTHS = [
   "January",
@@ -36,7 +36,7 @@ const MONTHS = [
 
 interface GunLicenceFormDialogProps {
   mode: "create" | "edit";
-  jurisdictions: Jurisdiction[];
+  states: State[];
   licenceTypes: RecordType[];
   action: (formData: FormData) => Promise<void> | void;
   licence?: GunLicenceWithStatus;
@@ -48,7 +48,7 @@ interface GunLicenceFormDialogProps {
 
 export function GunLicenceFormDialog({
   mode,
-  jurisdictions,
+  states,
   licenceTypes,
   action,
   licence,
@@ -60,23 +60,37 @@ export function GunLicenceFormDialog({
   const [open, setOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const handleAction = async (formData: FormData) => {
-    await action(formData);
-    setOpen(false);
-    formRef.current?.reset();
-  };
-
   const idPrefix = mode === "create" ? "new" : `edit-${licence?.id ?? ""}`;
   const today = new Date().toISOString().split("T")[0];
 
-  const defaultJurisdictionId = licence?.jurisdiction_id ?? "";
+  const defaultStateId = licence?.state_id ?? "";
   const defaultTypeId = licence?.record_type_id ?? "";
   const defaultLicenceNumber = licence?.licence_number ?? "";
   const defaultIssuedAt = licence?.issued_at ?? "";
   const defaultRenewedAt = licence?.last_renewed_at ?? today;
   const defaultBirthMonth = licence?.birth_month ?? "";
   const defaultBirthDay = licence?.birth_day ?? "";
+  const defaultAutoRenew = licence?.auto_renew ?? false;
   const defaultNotes = licence?.notes ?? "";
+
+  const [selectedStateId, setSelectedStateId] = useState(defaultStateId);
+
+  const handleAction = async (formData: FormData) => {
+    await action(formData);
+    setOpen(false);
+    formRef.current?.reset();
+    setSelectedStateId(defaultStateId);
+  };
+
+  const filteredTypes = useMemo(
+    () =>
+      licenceTypes.filter(
+        (type) =>
+          type.state_id == null ||
+          (selectedStateId ? type.state_id === selectedStateId : true),
+      ),
+    [licenceTypes, selectedStateId],
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -109,7 +123,7 @@ export function GunLicenceFormDialog({
           </DialogTitle>
           <DialogDescription>
             {mode === "create"
-              ? "Choose jurisdiction and licence type. We'll calculate renewal dates from the state's rules."
+              ? "Choose a state and licence type. We'll calculate renewal dates from the state's rules."
               : "Update any details that have changed. Renewing? Use the Renew button on the licence card instead."}
           </DialogDescription>
         </DialogHeader>
@@ -121,18 +135,18 @@ export function GunLicenceFormDialog({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor={`${idPrefix}-jurisdiction`}>Jurisdiction</Label>
+              <Label htmlFor={`${idPrefix}-state`}>State</Label>
               <Select
-                id={`${idPrefix}-jurisdiction`}
-                name="jurisdiction_id"
-                defaultValue={defaultJurisdictionId}
+                id={`${idPrefix}-state`}
+                name="state_id"
+                value={selectedStateId}
+                onChange={(event) => setSelectedStateId(event.target.value)}
                 required
               >
-                <option value="">Select jurisdiction…</option>
-                {jurisdictions.map((jurisdiction) => (
-                  <option key={jurisdiction.id} value={jurisdiction.id}>
-                    {jurisdiction.name}
-                    {jurisdiction.states ? ` (${jurisdiction.states.code})` : ""}
+                <option value="">Select state…</option>
+                {states.map((state) => (
+                  <option key={state.id} value={state.id}>
+                    {state.name} ({state.code})
                   </option>
                 ))}
               </Select>
@@ -147,12 +161,17 @@ export function GunLicenceFormDialog({
                 required
               >
                 <option value="">Select type…</option>
-                {licenceTypes.map((type) => (
+                {filteredTypes.map((type) => (
                   <option key={type.id} value={type.id}>
                     {type.name}
                   </option>
                 ))}
               </Select>
+              {selectedStateId && filteredTypes.length === 0 ? (
+                <p className="text-xs text-amber-600">
+                  No licence types for this state yet. An admin can add them on the States page.
+                </p>
+              ) : null}
             </div>
 
             <div className="space-y-1.5">
@@ -203,6 +222,21 @@ export function GunLicenceFormDialog({
               />
             </div>
           </div>
+
+          <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50/50 px-4 py-3">
+            <input
+              type="checkbox"
+              name="auto_renew"
+              defaultChecked={defaultAutoRenew}
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+            />
+            <span className="space-y-0.5">
+              <span className="block text-sm font-medium text-slate-700">Auto-renew</span>
+              <span className="block text-xs text-slate-500">
+                Automatically roll the renewal date forward each cycle so this licence stays current.
+              </span>
+            </span>
+          </label>
 
           <details className="rounded-lg border border-slate-200 bg-slate-50/50 px-4 py-3 group">
             <summary className="cursor-pointer list-none text-sm font-medium text-slate-700 group-open:mb-3">

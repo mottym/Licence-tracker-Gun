@@ -3,6 +3,7 @@ import {
   getCustomLicenceStatus,
   getLicenceStatus,
   resolveStateRules,
+  rollForwardLastRenewed,
 } from "@/lib/licences/calculate";
 import type {
   CustomLicenceWithStatus,
@@ -29,7 +30,7 @@ export async function getStates() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("states")
-    .select("*, state_groups(*)")
+    .select("*")
     .order("name", { ascending: true });
   return (data ?? []) as State[];
 }
@@ -63,7 +64,7 @@ export async function getGunLicences(): Promise<GunLicenceWithStatus[]> {
 
   const { data } = await supabase
     .from("gun_licences")
-    .select("*, states(*, state_groups(*)), jurisdictions(*), record_types(*)")
+    .select("*, states(*), jurisdictions(*), record_types(*)")
     .eq("user_id", user.id)
     .order("last_renewed_at", { ascending: false });
 
@@ -71,16 +72,18 @@ export async function getGunLicences(): Promise<GunLicenceWithStatus[]> {
     .map((licence) => {
       const rules = licence.states ? resolveStateRules(licence.states as State) : null;
       if (!rules) return null;
-      const status = getLicenceStatus(
-        new Date(licence.last_renewed_at),
-        rules,
-        {
-          manuallyMarkedExpired: Boolean(licence.manually_marked_expired),
-          expiresOnBirthday: Boolean(licence.states?.expires_on_birthday),
-          birthMonth: licence.birth_month,
-          birthDay: licence.birth_day,
-        },
-      );
+      const renewalOptions = {
+        expiresOnBirthday: Boolean(licence.states?.expires_on_birthday),
+        birthMonth: licence.birth_month,
+        birthDay: licence.birth_day,
+      };
+      const lastRenewed = licence.auto_renew
+        ? rollForwardLastRenewed(new Date(licence.last_renewed_at), rules, renewalOptions)
+        : new Date(licence.last_renewed_at);
+      const status = getLicenceStatus(lastRenewed, rules, {
+        manuallyMarkedExpired: Boolean(licence.manually_marked_expired),
+        ...renewalOptions,
+      });
       return { ...licence, rules, ...status };
     })
     .filter((value): value is GunLicenceWithStatus => Boolean(value));

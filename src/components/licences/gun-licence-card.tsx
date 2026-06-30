@@ -6,13 +6,13 @@ import { GunLicenceFormDialog } from "@/components/licences/gun-licence-form-dia
 import { RenewPopover } from "@/components/licences/renew-popover";
 import type {
   GunLicenceWithStatus,
-  Jurisdiction,
   RecordType,
+  State,
 } from "@/types/database";
 
 interface GunLicenceCardProps {
   licence: GunLicenceWithStatus;
-  jurisdictions: Jurisdiction[];
+  states: State[];
   licenceTypes: RecordType[];
   renewAction: (formData: FormData) => Promise<void> | void;
   updateAction: (formData: FormData) => Promise<void> | void;
@@ -22,14 +22,14 @@ interface GunLicenceCardProps {
 
 export function GunLicenceCard({
   licence,
-  jurisdictions,
+  states,
   licenceTypes,
   renewAction,
   updateAction,
   confirmExpiredAction,
   deleteAction,
 }: GunLicenceCardProps) {
-  const jurisdictionName = licence.jurisdictions?.name ?? licence.states?.name ?? "Unknown jurisdiction";
+  const jurisdictionName = licence.states?.name ?? licence.jurisdictions?.name ?? "Unknown state";
   const typeName = licence.record_types?.name ?? "Uncategorized";
   const stateCode = licence.states?.code ?? licence.jurisdictions?.states?.code;
 
@@ -84,7 +84,7 @@ export function GunLicenceCard({
         <GunLicenceFormDialog
           mode="edit"
           licence={licence}
-          jurisdictions={jurisdictions}
+          states={states}
           licenceTypes={licenceTypes}
           action={updateAction}
         />
