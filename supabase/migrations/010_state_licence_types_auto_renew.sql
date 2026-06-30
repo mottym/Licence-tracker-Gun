@@ -17,7 +17,8 @@ alter table public.record_types
 -- Existing gun licence types are linked via a jurisdiction; resolve them to the
 -- jurisdiction's state so they show up under that state going forward.
 update public.record_types rt
-set state_id = j.state_id
+set state_id = j.state_id,
+    jurisdiction_id = null
 from public.jurisdictions j
 where rt.jurisdiction_id = j.id
   and rt.state_id is null

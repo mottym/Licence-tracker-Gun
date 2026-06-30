@@ -3,6 +3,7 @@ import {
   CalendarClock,
   Hash,
   Image as ImageIcon,
+  RefreshCw,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { statusColor, statusLabel } from "@/lib/licences/calculate";
@@ -38,11 +39,19 @@ export function CustomLicenceCard({
             </p>
           ) : null}
         </div>
-        <span
-          className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${statusColor(licence.status)}`}
-        >
-          {statusLabel(licence.status)}
-        </span>
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+          {licence.auto_renew ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
+              <RefreshCw className="h-3 w-3" />
+              Auto-renew
+            </span>
+          ) : null}
+          <span
+            className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusColor(licence.status)}`}
+          >
+            {statusLabel(licence.status)}
+          </span>
+        </div>
       </div>
 
       <dl className="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">

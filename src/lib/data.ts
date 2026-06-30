@@ -3,6 +3,7 @@ import {
   getCustomLicenceStatus,
   getLicenceStatus,
   resolveStateRules,
+  rollForwardCustomExpiry,
   rollForwardLastRenewed,
 } from "@/lib/licences/calculate";
 import type {
@@ -77,7 +78,9 @@ export async function getGunLicences(): Promise<GunLicenceWithStatus[]> {
         birthMonth: licence.birth_month,
         birthDay: licence.birth_day,
       };
-      const lastRenewed = licence.auto_renew
+      const effectiveAutoRenew =
+        Boolean(licence.auto_renew) || Boolean(licence.states?.auto_renew);
+      const lastRenewed = effectiveAutoRenew
         ? rollForwardLastRenewed(new Date(licence.last_renewed_at), rules, renewalOptions)
         : new Date(licence.last_renewed_at);
       const status = getLicenceStatus(lastRenewed, rules, {
@@ -166,8 +169,15 @@ export async function getCustomLicences(): Promise<CustomLicenceWithStatus[]> {
     .order("expires_at", { ascending: true });
 
   const withStatus = (data ?? []).map((licence) => {
+    const expiresAt =
+      licence.auto_renew && !licence.manually_marked_expired
+        ? rollForwardCustomExpiry(
+            licence.issued_at ? new Date(licence.issued_at) : null,
+            new Date(licence.expires_at),
+          )
+        : new Date(licence.expires_at);
     const status = getCustomLicenceStatus(
-      new Date(licence.expires_at),
+      expiresAt,
       licence.renewal_reminder_days ?? 60,
       { manuallyMarkedExpired: Boolean(licence.manually_marked_expired) },
     );

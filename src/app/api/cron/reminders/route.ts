@@ -4,6 +4,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import {
   getLicenceStatus,
   resolveStateRules,
+  rollForwardCustomExpiry,
   rollForwardLastRenewed,
   shouldNotifyToday,
   DEFAULT_NOTIFY_DAYS,
@@ -43,7 +44,8 @@ export async function GET(request: Request) {
     };
 
     // Auto-renew: advance the licence forward so it never lapses, then skip reminders.
-    if (licence.auto_renew) {
+    // Honours both the per-licence flag and the state-level default set by admins.
+    if (licence.auto_renew || (licence.states as State)?.auto_renew) {
       const rolled = rollForwardLastRenewed(
         new Date(licence.last_renewed_at),
         rules,
@@ -117,6 +119,27 @@ export async function GET(request: Request) {
           notification_type: type,
         });
       }
+    }
+  }
+
+  // Custom licences: roll the expiry forward for any flagged for auto-renew.
+  const { data: customLicences } = await supabase
+    .from("custom_licences")
+    .select("id, issued_at, expires_at, auto_renew, manually_marked_expired");
+
+  for (const custom of customLicences ?? []) {
+    if (!custom.auto_renew || !custom.issued_at) continue;
+    const rolled = rollForwardCustomExpiry(
+      new Date(custom.issued_at),
+      new Date(custom.expires_at),
+    );
+    const rolledIso = toIsoDate(rolled);
+    if (rolledIso !== custom.expires_at) {
+      await supabase
+        .from("custom_licences")
+        .update({ expires_at: rolledIso, manually_marked_expired: false })
+        .eq("id", custom.id);
+      autoRenewed += 1;
     }
   }
 

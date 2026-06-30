@@ -156,6 +156,26 @@ export function statusLabel(status: LicenceStatus): string {
   }
 }
 
+// For auto-renew custom licences, advance the expiry forward by the original
+// issued -> expires period until it lands in the future. Without an issue date
+// there's no period to derive, so the expiry is returned unchanged.
+export function rollForwardCustomExpiry(
+  issuedAt: Date | null,
+  expiresAt: Date,
+  now: Date = new Date(),
+): Date {
+  if (!issuedAt) return expiresAt;
+  const periodMs = expiresAt.getTime() - issuedAt.getTime();
+  if (periodMs <= 0) return expiresAt;
+
+  let current = new Date(expiresAt);
+  for (let i = 0; i < 1200; i += 1) {
+    if (current > now) break;
+    current = new Date(current.getTime() + periodMs);
+  }
+  return current;
+}
+
 export function getCustomLicenceStatus(
   expiresAt: Date,
   reminderDays: number,

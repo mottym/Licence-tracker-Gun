@@ -180,6 +180,22 @@ export function CustomLicenceFormDialog({
             </div>
           </div>
 
+          <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50/50 px-4 py-3">
+            <input
+              type="checkbox"
+              name="auto_renew"
+              defaultChecked={licence?.auto_renew ?? false}
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+            />
+            <span className="space-y-0.5">
+              <span className="block text-sm font-medium text-slate-700">Auto-renew</span>
+              <span className="block text-xs text-slate-500">
+                Roll the expiry forward automatically each cycle. Requires an issue
+                date so the renewal period can be calculated.
+              </span>
+            </span>
+          </label>
+
           <details className="rounded-lg border border-slate-200 bg-slate-50/50 px-4 py-3 group">
             <summary className="cursor-pointer list-none text-sm font-medium text-slate-700 group-open:mb-3">
               Notes

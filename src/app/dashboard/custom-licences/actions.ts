@@ -62,6 +62,7 @@ export async function createCustomLicence(formData: FormData) {
       issued_at: optionalText(formData.get("issued_at")),
       expires_at: expiresAt,
       renewal_reminder_days: parseReminderDays(formData.get("renewal_reminder_days")),
+      auto_renew: formData.get("auto_renew") === "on",
       notes: optionalText(formData.get("notes")),
     })
     .select("id")
@@ -127,6 +128,7 @@ export async function updateCustomLicence(formData: FormData) {
       issued_at: optionalText(formData.get("issued_at")),
       expires_at: expiresAt,
       renewal_reminder_days: parseReminderDays(formData.get("renewal_reminder_days")),
+      auto_renew: formData.get("auto_renew") === "on",
       notes: optionalText(formData.get("notes")),
       photo_url: photoUrl,
     })

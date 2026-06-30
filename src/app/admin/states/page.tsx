@@ -90,6 +90,9 @@ export default async function AdminStatesPage() {
               <Field label="Birthday expiry">
                 <Checkbox name="expires_on_birthday" label="Expires on user&apos;s birthday" />
               </Field>
+              <Field label="Auto-renew">
+                <Checkbox name="auto_renew" label="Auto-renew licences in this state" />
+              </Field>
             </div>
 
             <div className="flex justify-end">
@@ -144,6 +147,7 @@ export default async function AdminStatesPage() {
                         {state.is_custom ? "Custom" : "Default"}
                       </Badge>
                       {state.expires_on_birthday ? <Badge tone="rose">Birthday expiry</Badge> : null}
+                      {state.auto_renew ? <Badge tone="indigo">Auto-renew</Badge> : null}
                     </div>
                   </div>
 
@@ -200,6 +204,13 @@ export default async function AdminStatesPage() {
                           min={0}
                           placeholder="e.g. 90"
                           defaultValue={state.renewal_processing_days ?? ""}
+                        />
+                      </Field>
+                      <Field label="Auto-renew">
+                        <Checkbox
+                          name="auto_renew"
+                          label="Auto-renew licences in this state"
+                          defaultChecked={state.auto_renew}
                         />
                       </Field>
                     </div>

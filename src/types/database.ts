@@ -40,6 +40,7 @@ export interface State {
   is_custom: boolean;
   gun_renewal_url: string | null;
   expires_on_birthday: boolean;
+  auto_renew: boolean;
   expiration_months: number | null;
   renewal_processing_days: number | null;
   created_at: string;
@@ -193,6 +194,7 @@ export interface CustomLicence {
   issued_at: string | null;
   expires_at: string;
   renewal_reminder_days: number;
+  auto_renew: boolean;
   notes: string | null;
   photo_url: string | null;
   manually_marked_expired: boolean;
