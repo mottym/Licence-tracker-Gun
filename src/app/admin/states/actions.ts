@@ -20,8 +20,6 @@ function optionalText(value: FormDataEntryValue | null): string | null {
 export async function updateStateRules(formData: FormData) {
   const supabase = await createClient();
   const stateId = String(formData.get("state_id"));
-  const expirationMonths = optionalNumber(formData.get("expiration_months"));
-  const renewalProcessingDays = optionalNumber(formData.get("renewal_processing_days"));
   const name = optionalText(formData.get("name"));
   const code = optionalText(formData.get("code"));
   const gunRenewalUrl = optionalText(formData.get("gun_renewal_url"));
@@ -33,8 +31,6 @@ export async function updateStateRules(formData: FormData) {
     .update({
       name: name ?? undefined,
       code: code?.toUpperCase() ?? undefined,
-      expiration_months: expirationMonths,
-      renewal_processing_days: renewalProcessingDays,
       gun_renewal_url: gunRenewalUrl,
       expires_on_birthday: expiresOnBirthday,
       auto_renew: autoRenew,
@@ -55,8 +51,6 @@ export async function createState(formData: FormData) {
     name,
     code: code.toUpperCase(),
     is_custom: true,
-    expiration_months: optionalNumber(formData.get("expiration_months")),
-    renewal_processing_days: optionalNumber(formData.get("renewal_processing_days")),
     gun_renewal_url: optionalText(formData.get("gun_renewal_url")),
     expires_on_birthday: formData.get("expires_on_birthday") === "on",
     auto_renew: formData.get("auto_renew") === "on",
@@ -85,7 +79,10 @@ export async function addStateLicenceType(formData: FormData) {
   const supabase = await createClient();
   const stateId = optionalText(formData.get("state_id"));
   const name = optionalText(formData.get("name"));
+  const expirationMonths = optionalNumber(formData.get("expiration_months"));
+  const renewalProcessingDays = optionalNumber(formData.get("renewal_processing_days"));
   if (!stateId || !name) return;
+  if (expirationMonths == null || renewalProcessingDays == null) return;
 
   const { data: category } = await supabase
     .from("record_categories")
@@ -103,8 +100,33 @@ export async function addStateLicenceType(formData: FormData) {
     key,
     name,
     requires_renewal: true,
+    expiration_months: expirationMonths,
+    renewal_processing_days: renewalProcessingDays,
     is_active: true,
   });
+
+  revalidatePath("/admin/states");
+  revalidatePath("/dashboard/gun-licences");
+  revalidatePath("/dashboard");
+}
+
+export async function updateStateLicenceType(formData: FormData) {
+  const supabase = await createClient();
+  const id = optionalText(formData.get("id"));
+  const name = optionalText(formData.get("name"));
+  const expirationMonths = optionalNumber(formData.get("expiration_months"));
+  const renewalProcessingDays = optionalNumber(formData.get("renewal_processing_days"));
+  if (!id || !name) return;
+  if (expirationMonths == null || renewalProcessingDays == null) return;
+
+  await supabase
+    .from("record_types")
+    .update({
+      name,
+      expiration_months: expirationMonths,
+      renewal_processing_days: renewalProcessingDays,
+    })
+    .eq("id", id);
 
   revalidatePath("/admin/states");
   revalidatePath("/dashboard/gun-licences");

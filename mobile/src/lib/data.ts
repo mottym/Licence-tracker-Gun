@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { getLicenceStatus, resolveStateRules, rollForwardLastRenewed } from "@/lib/status";
+import { getLicenceStatus, resolveGunLicenceRules, rollForwardLastRenewed } from "@/lib/status";
 import type {
   GunCourseWithStatus,
   GunLicenceWithStatus,
@@ -43,7 +43,10 @@ export async function fetchGunLicences(): Promise<GunLicenceWithStatus[]> {
 
   const computed = (data ?? [])
     .map((licence) => {
-      const rules = licence.states ? resolveStateRules(licence.states as State) : null;
+      const rules = resolveGunLicenceRules(
+        licence.record_types as RecordType | null,
+        licence.states as State | null,
+      );
       if (!rules) return null;
       const renewalOptions = {
         expiresOnBirthday: Boolean(licence.states?.expires_on_birthday),

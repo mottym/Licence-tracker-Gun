@@ -1,13 +1,31 @@
-import type { LicenceStatus, State, StateRules } from "@/types/database";
+import type { LicenceStatus, RecordType, State, StateRules } from "@/types/database";
 
-export function resolveStateRules(state: State): StateRules | null {
-  if (state.expiration_months != null && state.renewal_processing_days != null) {
+type RenewalRuleSource = {
+  expiration_months: number | null;
+  renewal_processing_days: number | null;
+};
+
+export function resolveRenewalRules(source: RenewalRuleSource): StateRules | null {
+  if (source.expiration_months != null && source.renewal_processing_days != null) {
     return {
-      expiration_months: state.expiration_months,
-      renewal_processing_days: state.renewal_processing_days,
+      expiration_months: source.expiration_months,
+      renewal_processing_days: source.renewal_processing_days,
     };
   }
   return null;
+}
+
+export function resolveStateRules(state: State): StateRules | null {
+  return resolveRenewalRules(state);
+}
+
+export function resolveGunLicenceRules(
+  recordType: RecordType | null | undefined,
+  state: State | null | undefined,
+): StateRules | null {
+  const fromType = recordType ? resolveRenewalRules(recordType) : null;
+  if (fromType) return fromType;
+  return state ? resolveRenewalRules(state) : null;
 }
 
 export function addMonths(date: Date, months: number): Date {

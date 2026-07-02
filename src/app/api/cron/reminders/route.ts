@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { createServiceClient } from "@/lib/supabase/server";
 import {
   getLicenceStatus,
-  resolveStateRules,
+  resolveGunLicenceRules,
   rollForwardCustomExpiry,
   rollForwardLastRenewed,
   shouldNotifyToday,
@@ -11,7 +11,7 @@ import {
 } from "@/lib/licences/calculate";
 import { sendRenewalEmail } from "@/lib/notifications/email";
 import { sendPushNotification } from "@/lib/notifications/push";
-import type { State } from "@/types/database";
+import type { RecordType, State } from "@/types/database";
 
 function toIsoDate(date: Date): string {
   return date.toISOString().split("T")[0];
@@ -34,7 +34,10 @@ export async function GET(request: Request) {
 
   for (const licence of licences ?? []) {
     if (!licence.states) continue;
-    const rules = resolveStateRules(licence.states as State);
+    const rules = resolveGunLicenceRules(
+      licence.record_types as RecordType | null,
+      licence.states as State | null,
+    );
     if (!rules) continue;
 
     const renewalOptions = {

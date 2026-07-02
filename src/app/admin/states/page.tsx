@@ -4,6 +4,7 @@ import {
   createState,
   deleteState,
   deleteStateLicenceType,
+  updateStateLicenceType,
   updateStateRules,
 } from "./actions";
 import { Button } from "@/components/ui/button";
@@ -38,7 +39,7 @@ export default async function AdminStatesPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">State manager</h1>
           <p className="text-sm text-slate-500">
-            Configure states, set expiry rules, and manage the gun licence types available in each state.
+            Configure states and manage gun licence types — each type has its own expiry rules.
           </p>
         </div>
         <div className="flex flex-wrap gap-2 text-xs">
@@ -71,21 +72,8 @@ export default async function AdminStatesPage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <Field label="Expiration (months)" htmlFor="new-months">
-                <Input id="new-months" name="expiration_months" type="number" min={1} placeholder="e.g. 60" />
-              </Field>
-              <Field
-                label="Renewal processing (days)"
-                htmlFor="new-processing"
-                hint="Window opens this many days before expiry"
-              >
-                <Input
-                  id="new-processing"
-                  name="renewal_processing_days"
-                  type="number"
-                  min={0}
-                  placeholder="e.g. 90"
-                />
+              <Field label="Gun renewal URL" htmlFor="new-url" hint="External link shown to users">
+                <Input id="new-url" name="gun_renewal_url" type="url" placeholder="https://" />
               </Field>
               <Field label="Birthday expiry">
                 <Checkbox name="expires_on_birthday" label="Expires on user&apos;s birthday" />
@@ -107,7 +95,7 @@ export default async function AdminStatesPage() {
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <CardTitle>Existing states</CardTitle>
-              <CardDescription>Update renewal rules and manage the licence types for each state.</CardDescription>
+              <CardDescription>Update state settings and manage licence types with per-type expiry rules.</CardDescription>
             </div>
             <p className="text-xs text-slate-500">{states.length} states</p>
           </div>
@@ -119,9 +107,11 @@ export default async function AdminStatesPage() {
             </p>
           ) : (
             states.map((state) => {
-              const effectiveMonths = state.expiration_months ?? null;
-              const effectiveDays = state.renewal_processing_days ?? null;
               const stateLicenceTypes = licenceTypesByState.get(state.id) ?? [];
+              const typesWithRules = stateLicenceTypes.filter(
+                (type) =>
+                  type.expiration_months != null && type.renewal_processing_days != null,
+              ).length;
 
               return (
                 <div
@@ -136,9 +126,9 @@ export default async function AdminStatesPage() {
                       <div>
                         <p className="text-sm font-semibold text-slate-900">{state.name}</p>
                         <p className="text-xs text-slate-500">
-                          {effectiveMonths != null && effectiveDays != null
-                            ? `Renews every ${effectiveMonths} mo · ${effectiveDays}-day processing window`
-                            : "No renewal rules configured"}
+                          {stateLicenceTypes.length === 0
+                            ? "No licence types yet"
+                            : `${stateLicenceTypes.length} licence type${stateLicenceTypes.length === 1 ? "" : "s"} · ${typesWithRules} with expiry rules`}
                         </p>
                       </div>
                     </div>
@@ -186,26 +176,6 @@ export default async function AdminStatesPage() {
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                      <Field label="Expiration (months)" htmlFor={`months-${state.id}`}>
-                        <Input
-                          id={`months-${state.id}`}
-                          name="expiration_months"
-                          type="number"
-                          min={1}
-                          placeholder="e.g. 60"
-                          defaultValue={state.expiration_months ?? ""}
-                        />
-                      </Field>
-                      <Field label="Renewal processing (days)" htmlFor={`days-${state.id}`}>
-                        <Input
-                          id={`days-${state.id}`}
-                          name="renewal_processing_days"
-                          type="number"
-                          min={0}
-                          placeholder="e.g. 90"
-                          defaultValue={state.renewal_processing_days ?? ""}
-                        />
-                      </Field>
                       <Field label="Auto-renew">
                         <Checkbox
                           name="auto_renew"
@@ -235,46 +205,124 @@ export default async function AdminStatesPage() {
                     </p>
                     {stateLicenceTypes.length === 0 ? (
                       <p className="text-xs text-slate-400">
-                        No licence types yet. Add the first one below.
+                        No licence types yet. Add the first one below with its expiry rules.
                       </p>
                     ) : (
-                      <ul className="space-y-1.5">
+                      <ul className="space-y-2">
                         {stateLicenceTypes.map((type) => (
                           <li
                             key={type.id}
-                            className="flex items-center justify-between gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm"
+                            className="rounded-md border border-slate-200 bg-white p-3"
                           >
-                            <span className="text-slate-700">{type.name}</span>
-                            <form action={deleteStateLicenceType}>
-                              <input type="hidden" name="id" value={type.id} />
-                              <ConfirmDeleteButton
-                                type="submit"
-                                variant="destructive"
-                                size="sm"
-                                message="Remove this licence type? It can't be removed while licences still use it."
-                              >
-                                Remove
-                              </ConfirmDeleteButton>
-                            </form>
+                            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                              <form action={updateStateLicenceType} className="contents">
+                                <input type="hidden" name="id" value={type.id} />
+                                <Field label="Type name" htmlFor={`type-name-${type.id}`} required>
+                                  <Input
+                                    id={`type-name-${type.id}`}
+                                    name="name"
+                                    defaultValue={type.name}
+                                    required
+                                  />
+                                </Field>
+                                <Field
+                                  label="Expiration (months)"
+                                  htmlFor={`type-months-${type.id}`}
+                                  required
+                                >
+                                  <Input
+                                    id={`type-months-${type.id}`}
+                                    name="expiration_months"
+                                    type="number"
+                                    min={1}
+                                    defaultValue={type.expiration_months ?? ""}
+                                    required
+                                  />
+                                </Field>
+                                <Field
+                                  label="Processing (days)"
+                                  htmlFor={`type-days-${type.id}`}
+                                  hint="Renewal window opens this many days before expiry"
+                                  required
+                                >
+                                  <Input
+                                    id={`type-days-${type.id}`}
+                                    name="renewal_processing_days"
+                                    type="number"
+                                    min={0}
+                                    defaultValue={type.renewal_processing_days ?? ""}
+                                    required
+                                  />
+                                </Field>
+                                <div className="flex items-end gap-2">
+                                  <SubmitButton size="sm" variant="secondary" pendingLabel="Saving...">
+                                    Save type
+                                  </SubmitButton>
+                                </div>
+                              </form>
+                              <form action={deleteStateLicenceType} className="flex items-end">
+                                <input type="hidden" name="id" value={type.id} />
+                                <ConfirmDeleteButton
+                                  type="submit"
+                                  variant="destructive"
+                                  size="sm"
+                                  message="Remove this licence type? It can't be removed while licences still use it."
+                                >
+                                  Remove
+                                </ConfirmDeleteButton>
+                              </form>
+                            </div>
                           </li>
                         ))}
                       </ul>
                     )}
 
-                    <form action={addStateLicenceType} className="flex flex-wrap items-end gap-2 pt-1">
+                    <form action={addStateLicenceType} className="space-y-3 border-t border-slate-200 pt-3">
                       <input type="hidden" name="state_id" value={state.id} />
-                      <div className="flex-1 space-y-1.5">
-                        <Label htmlFor={`new-type-${state.id}`}>Add licence type</Label>
-                        <Input
-                          id={`new-type-${state.id}`}
-                          name="name"
-                          placeholder="e.g. Premises Licence"
+                      <p className="text-xs font-medium text-slate-600">Add licence type</p>
+                      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                        <Field label="Type name" htmlFor={`new-type-${state.id}`} required>
+                          <Input
+                            id={`new-type-${state.id}`}
+                            name="name"
+                            placeholder="e.g. Premises Licence"
+                            required
+                          />
+                        </Field>
+                        <Field
+                          label="Expiration (months)"
+                          htmlFor={`new-type-months-${state.id}`}
                           required
-                        />
+                        >
+                          <Input
+                            id={`new-type-months-${state.id}`}
+                            name="expiration_months"
+                            type="number"
+                            min={1}
+                            placeholder="e.g. 60"
+                            required
+                          />
+                        </Field>
+                        <Field
+                          label="Processing (days)"
+                          htmlFor={`new-type-days-${state.id}`}
+                          required
+                        >
+                          <Input
+                            id={`new-type-days-${state.id}`}
+                            name="renewal_processing_days"
+                            type="number"
+                            min={0}
+                            placeholder="e.g. 90"
+                            required
+                          />
+                        </Field>
+                        <div className="flex items-end">
+                          <Button type="submit" size="sm">
+                            Add type
+                          </Button>
+                        </div>
                       </div>
-                      <Button type="submit" size="sm">
-                        Add type
-                      </Button>
                     </form>
                   </div>
                 </div>

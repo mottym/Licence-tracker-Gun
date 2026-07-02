@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   getCustomLicenceStatus,
   getLicenceStatus,
-  resolveStateRules,
+  resolveGunLicenceRules,
   rollForwardCustomExpiry,
   rollForwardLastRenewed,
 } from "@/lib/licences/calculate";
@@ -71,7 +71,10 @@ export async function getGunLicences(): Promise<GunLicenceWithStatus[]> {
 
   const licencesWithStatus = (data ?? [])
     .map((licence) => {
-      const rules = licence.states ? resolveStateRules(licence.states as State) : null;
+      const rules = resolveGunLicenceRules(
+        licence.record_types as RecordType | null,
+        licence.states as State | null,
+      );
       if (!rules) return null;
       const renewalOptions = {
         expiresOnBirthday: Boolean(licence.states?.expires_on_birthday),

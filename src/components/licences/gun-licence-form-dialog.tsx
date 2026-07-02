@@ -123,7 +123,7 @@ export function GunLicenceFormDialog({
           </DialogTitle>
           <DialogDescription>
             {mode === "create"
-              ? "Choose a state and licence type. We'll calculate renewal dates from the state's rules."
+              ? "Choose a state and licence type. Expiry is calculated from the type's rules."
               : "Update any details that have changed. Renewing? Use the Renew button on the licence card instead."}
           </DialogDescription>
         </DialogHeader>
