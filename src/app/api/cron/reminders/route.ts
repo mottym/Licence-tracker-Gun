@@ -27,23 +27,28 @@ export async function GET(request: Request) {
 
   const { data: licences } = await supabase
     .from("gun_licences")
-    .select("*, states(*), profiles(email), notification_preferences(*), record_types(*)");
+    .select(
+      "*, states(*), profiles(email, birth_month, birth_day), notification_preferences(*), record_types(*)",
+    );
 
   let sent = 0;
   let autoRenewed = 0;
 
   for (const licence of licences ?? []) {
-    if (!licence.states) continue;
-    const rules = resolveGunLicenceRules(
-      licence.record_types as RecordType | null,
-      licence.states as State | null,
-    );
+    const recordType = licence.record_types as RecordType | null;
+    if (recordType && !recordType.requires_renewal) continue;
+
+    const rules = resolveGunLicenceRules(recordType, licence.states as State | null);
     if (!rules) continue;
 
+    const profile = licence.profiles as {
+      birth_month?: number | null;
+      birth_day?: number | null;
+    } | null;
     const renewalOptions = {
-      expiresOnBirthday: Boolean(licence.states?.expires_on_birthday),
-      birthMonth: licence.birth_month,
-      birthDay: licence.birth_day,
+      expiresOnBirthday: Boolean(recordType?.expires_on_birthday),
+      birthMonth: licence.birth_month ?? profile?.birth_month ?? null,
+      birthDay: licence.birth_day ?? profile?.birth_day ?? null,
     };
 
     // Auto-renew: advance the licence forward so it never lapses, then skip reminders.
@@ -73,15 +78,15 @@ export async function GET(request: Request) {
     });
     const prefs = licence.notification_preferences?.[0];
     const notifyDays = prefs?.notify_days_before ?? DEFAULT_NOTIFY_DAYS;
-    const type = shouldNotifyToday(status.daysUntilRenewalWindow, notifyDays);
-    if (!type) continue;
+    const notificationType = shouldNotifyToday(status.daysUntilRenewalWindow, notifyDays);
+    if (!notificationType) continue;
 
     const { data: existing } = await supabase
       .from("notification_log")
       .select("id")
       .eq("licence_id", licence.legacy_licence_id ?? licence.id)
       .eq("channel", "email")
-      .eq("notification_type", type)
+      .eq("notification_type", notificationType)
       .maybeSingle();
 
     if (existing) continue;
@@ -98,7 +103,7 @@ export async function GET(request: Request) {
         user_id: licence.user_id,
         licence_id: licence.legacy_licence_id ?? licence.id,
         channel: "email",
-        notification_type: type,
+        notification_type: notificationType,
       });
     }
 
@@ -119,7 +124,7 @@ export async function GET(request: Request) {
           user_id: licence.user_id,
           licence_id: licence.legacy_licence_id ?? licence.id,
           channel: "push",
-          notification_type: type,
+          notification_type: notificationType,
         });
       }
     }

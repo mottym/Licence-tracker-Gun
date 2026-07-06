@@ -23,7 +23,6 @@ export async function updateStateRules(formData: FormData) {
   const name = optionalText(formData.get("name"));
   const code = optionalText(formData.get("code"));
   const gunRenewalUrl = optionalText(formData.get("gun_renewal_url"));
-  const expiresOnBirthday = formData.get("expires_on_birthday") === "on";
   const autoRenew = formData.get("auto_renew") === "on";
 
   await supabase
@@ -32,7 +31,6 @@ export async function updateStateRules(formData: FormData) {
       name: name ?? undefined,
       code: code?.toUpperCase() ?? undefined,
       gun_renewal_url: gunRenewalUrl,
-      expires_on_birthday: expiresOnBirthday,
       auto_renew: autoRenew,
     })
     .eq("id", stateId);
@@ -52,7 +50,6 @@ export async function createState(formData: FormData) {
     code: code.toUpperCase(),
     is_custom: true,
     gun_renewal_url: optionalText(formData.get("gun_renewal_url")),
-    expires_on_birthday: formData.get("expires_on_birthday") === "on",
     auto_renew: formData.get("auto_renew") === "on",
   });
 
@@ -75,14 +72,21 @@ function slugify(value: string): string {
     .replace(/^_+|_+$/g, "");
 }
 
+function parseExpiryMode(formData: FormData): "standard" | "birthday" | "never" {
+  const mode = String(formData.get("expiry_mode") ?? "standard");
+  if (mode === "birthday" || mode === "never") return mode;
+  return "standard";
+}
+
 export async function addStateLicenceType(formData: FormData) {
   const supabase = await createClient();
   const stateId = optionalText(formData.get("state_id"));
   const name = optionalText(formData.get("name"));
+  const expiryMode = parseExpiryMode(formData);
   const expirationMonths = optionalNumber(formData.get("expiration_months"));
   const renewalProcessingDays = optionalNumber(formData.get("renewal_processing_days"));
   if (!stateId || !name) return;
-  if (expirationMonths == null || renewalProcessingDays == null) return;
+  if (expiryMode !== "never" && (expirationMonths == null || renewalProcessingDays == null)) return;
 
   const { data: category } = await supabase
     .from("record_categories")
@@ -99,9 +103,10 @@ export async function addStateLicenceType(formData: FormData) {
     state_id: stateId,
     key,
     name,
-    requires_renewal: true,
-    expiration_months: expirationMonths,
-    renewal_processing_days: renewalProcessingDays,
+    requires_renewal: expiryMode !== "never",
+    expires_on_birthday: expiryMode === "birthday",
+    expiration_months: expiryMode === "never" ? null : expirationMonths,
+    renewal_processing_days: expiryMode === "never" ? null : renewalProcessingDays,
     is_active: true,
   });
 
@@ -114,17 +119,20 @@ export async function updateStateLicenceType(formData: FormData) {
   const supabase = await createClient();
   const id = optionalText(formData.get("id"));
   const name = optionalText(formData.get("name"));
+  const expiryMode = parseExpiryMode(formData);
   const expirationMonths = optionalNumber(formData.get("expiration_months"));
   const renewalProcessingDays = optionalNumber(formData.get("renewal_processing_days"));
   if (!id || !name) return;
-  if (expirationMonths == null || renewalProcessingDays == null) return;
+  if (expiryMode !== "never" && (expirationMonths == null || renewalProcessingDays == null)) return;
 
   await supabase
     .from("record_types")
     .update({
       name,
-      expiration_months: expirationMonths,
-      renewal_processing_days: renewalProcessingDays,
+      requires_renewal: expiryMode !== "never",
+      expires_on_birthday: expiryMode === "birthday",
+      expiration_months: expiryMode === "never" ? null : expirationMonths,
+      renewal_processing_days: expiryMode === "never" ? null : renewalProcessingDays,
     })
     .eq("id", id);
 

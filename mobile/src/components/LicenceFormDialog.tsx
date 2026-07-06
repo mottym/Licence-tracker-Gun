@@ -4,7 +4,6 @@ import { Button, Dialog, HelperText, Portal, Switch, Text, TextInput } from "rea
 import { DateField } from "@/components/DateField";
 import { PhotoPicker, type PickedAsset } from "@/components/PhotoPicker";
 import { SelectField } from "@/components/SelectField";
-import { toIsoDate } from "@/lib/format";
 import {
   attachPhotoToGunLicence,
   createGunLicence,
@@ -30,22 +29,6 @@ interface LicenceFormDialogProps {
   licenceTypes: RecordType[];
 }
 
-const MONTH_OPTIONS = [
-  { value: "", label: "—" },
-  { value: "1", label: "January" },
-  { value: "2", label: "February" },
-  { value: "3", label: "March" },
-  { value: "4", label: "April" },
-  { value: "5", label: "May" },
-  { value: "6", label: "June" },
-  { value: "7", label: "July" },
-  { value: "8", label: "August" },
-  { value: "9", label: "September" },
-  { value: "10", label: "October" },
-  { value: "11", label: "November" },
-  { value: "12", label: "December" },
-];
-
 export function LicenceFormDialog({
   visible,
   onDismiss,
@@ -62,8 +45,6 @@ export function LicenceFormDialog({
   const [licenceNumber, setLicenceNumber] = useState("");
   const [issuedAt, setIssuedAt] = useState<string | null>(null);
   const [lastRenewedAt, setLastRenewedAt] = useState<string | null>(null);
-  const [birthMonth, setBirthMonth] = useState("");
-  const [birthDay, setBirthDay] = useState("");
   const [autoRenew, setAutoRenew] = useState(false);
   const [notes, setNotes] = useState("");
   const [photo, setPhoto] = useState<PickedAsset | null>(null);
@@ -79,8 +60,6 @@ export function LicenceFormDialog({
       setLicenceNumber(licence.licence_number ?? "");
       setIssuedAt(licence.issued_at);
       setLastRenewedAt(licence.last_renewed_at);
-      setBirthMonth(licence.birth_month ? String(licence.birth_month) : "");
-      setBirthDay(licence.birth_day ? String(licence.birth_day) : "");
       setAutoRenew(Boolean(licence.auto_renew));
       setNotes(licence.notes ?? "");
     } else {
@@ -88,9 +67,7 @@ export function LicenceFormDialog({
       setRecordTypeId("");
       setLicenceNumber("");
       setIssuedAt(null);
-      setLastRenewedAt(toIsoDate(new Date()));
-      setBirthMonth("");
-      setBirthDay("");
+      setLastRenewedAt(null);
       setAutoRenew(false);
       setNotes("");
     }
@@ -118,8 +95,8 @@ export function LicenceFormDialog({
   );
 
   const handleSubmit = async () => {
-    if (!jurisdictionId || !recordTypeId || !lastRenewedAt) {
-      setError("Jurisdiction, licence type, and last renewed date are required.");
+    if (!jurisdictionId || !recordTypeId) {
+      setError("Jurisdiction and licence type are required.");
       return;
     }
     setSaving(true);
@@ -131,8 +108,6 @@ export function LicenceFormDialog({
       licence_number: licenceNumber.trim() || null,
       issued_at: issuedAt,
       last_renewed_at: lastRenewedAt,
-      birth_month: birthMonth ? Number(birthMonth) : null,
-      birth_day: birthDay ? Number(birthDay) : null,
       auto_renew: autoRenew,
       notes: notes.trim() || null,
     };
@@ -198,16 +173,20 @@ export function LicenceFormDialog({
               placeholder="e.g. NYC-12345"
             />
             <DateField
-              label="Last renewed"
-              value={lastRenewedAt}
-              onChange={setLastRenewedAt}
-            />
-            <DateField
               label="Issue date (optional)"
               value={issuedAt}
               onChange={setIssuedAt}
               optional
             />
+            <DateField
+              label="Last renewed (optional)"
+              value={lastRenewedAt}
+              onChange={setLastRenewedAt}
+              optional
+            />
+            <HelperText type="info" visible>
+              Leave last renewed blank to use the issue date, or today if no issue date is set.
+            </HelperText>
 
             <View style={styles.switchRow}>
               <View style={styles.switchText}>
@@ -217,31 +196,6 @@ export function LicenceFormDialog({
                 </Text>
               </View>
               <Switch value={autoRenew} onValueChange={setAutoRenew} />
-            </View>
-
-            <Text variant="labelLarge" style={styles.sectionLabel}>
-              Birthday (for states that expire on birthday)
-            </Text>
-            <View style={styles.row}>
-              <View style={styles.flex}>
-                <SelectField
-                  label="Month"
-                  value={birthMonth}
-                  options={MONTH_OPTIONS}
-                  onChange={setBirthMonth}
-                />
-              </View>
-              <View style={styles.flex}>
-                <TextInput
-                  mode="outlined"
-                  label="Day"
-                  value={birthDay}
-                  onChangeText={(text) =>
-                    setBirthDay(text.replace(/[^0-9]/g, "").slice(0, 2))
-                  }
-                  keyboardType="number-pad"
-                />
-              </View>
             </View>
 
             <TextInput

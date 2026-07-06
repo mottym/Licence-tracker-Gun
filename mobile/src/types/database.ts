@@ -10,6 +10,8 @@ export interface Profile {
   id: string;
   email: string;
   role: UserRole;
+  birth_month: number | null;
+  birth_day: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -62,6 +64,7 @@ export interface RecordType {
   key: string;
   name: string;
   requires_renewal: boolean;
+  expires_on_birthday: boolean;
   expiration_months: number | null;
   renewal_processing_days: number | null;
   is_active: boolean;
@@ -98,11 +101,11 @@ export interface GunLicence {
 
 export interface GunLicenceWithStatus extends GunLicence {
   status: LicenceStatus;
-  expiresAt: Date;
-  startRenewalBy: Date;
-  daysUntilRenewalWindow: number;
-  daysUntilExpiry: number;
-  rules: StateRules;
+  expiresAt: Date | null;
+  startRenewalBy: Date | null;
+  daysUntilRenewalWindow: number | null;
+  daysUntilExpiry: number | null;
+  rules: StateRules | null;
   photo_signed_url?: string | null;
 }
 

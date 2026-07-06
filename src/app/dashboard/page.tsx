@@ -53,15 +53,17 @@ export default async function DashboardPage() {
   );
 
   const combinedRenewables: RenewalRow[] = [
-    ...licences.map<RenewalRow>((licence) => ({
-      id: `gun-licence-${licence.id}`,
-      title: licence.record_types?.name ?? "Gun licence",
-      subtitle:
-        licence.jurisdictions?.name ?? licence.states?.name ?? "Unknown jurisdiction",
-      status: licence.status,
-      expiresAt: licence.expiresAt,
-      daysUntilExpiry: licence.daysUntilExpiry,
-    })),
+    ...licences
+      .filter((licence) => licence.expiresAt != null && licence.daysUntilExpiry != null)
+      .map<RenewalRow>((licence) => ({
+        id: `gun-licence-${licence.id}`,
+        title: licence.record_types?.name ?? "Gun licence",
+        subtitle:
+          licence.jurisdictions?.name ?? licence.states?.name ?? "Unknown jurisdiction",
+        status: licence.status,
+        expiresAt: licence.expiresAt!,
+        daysUntilExpiry: licence.daysUntilExpiry!,
+      })),
     ...customLicences.map<RenewalRow>((licence) => ({
       id: `custom-licence-${licence.id}`,
       title: licence.name,

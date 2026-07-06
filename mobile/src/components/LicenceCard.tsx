@@ -97,7 +97,10 @@ export function LicenceCard({
           <Detail label="Licence #" value={licence.licence_number ?? "Not set"} />
           <Detail label="Last renewed" value={formatDate(licence.last_renewed_at)} />
           <Detail label="Renewal opens" value={formatDate(licence.startRenewalBy)} />
-          <Detail label="Expires" value={formatDate(licence.expiresAt)} />
+          <Detail
+            label="Expires"
+            value={licence.expiresAt ? formatDate(licence.expiresAt) : "Does not expire"}
+          />
         </View>
 
         {licence.photo_signed_url ? (

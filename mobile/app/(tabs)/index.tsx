@@ -42,11 +42,15 @@ export default function OverviewScreen() {
   }, [load]);
 
   const expiringSoon = licences.filter(
-    (licence) => licence.daysUntilExpiry <= 30 && licence.status !== "expired",
+    (licence) =>
+      licence.daysUntilExpiry != null &&
+      licence.daysUntilExpiry <= 30 &&
+      licence.status !== "expired",
   ).length;
   const expired = licences.filter((licence) => licence.status === "expired").length;
   const upcoming = [...licences]
-    .sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry)
+    .filter((licence) => licence.expiresAt != null && licence.daysUntilExpiry != null)
+    .sort((a, b) => a.daysUntilExpiry! - b.daysUntilExpiry!)
     .slice(0, 5);
 
   if (loading) {

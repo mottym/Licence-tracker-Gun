@@ -13,6 +13,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { ConfirmDeleteButton } from "@/components/licences/confirm-delete-button";
+import {
+  expiryModeForType,
+  LicenceTypeExpiryFields,
+} from "@/components/admin/licence-type-expiry-fields";
 import { cn } from "@/lib/utils";
 import type { RecordType } from "@/types/database";
 
@@ -31,7 +35,8 @@ export default async function AdminStatesPage() {
   }
 
   const customCount = states.filter((s) => s.is_custom).length;
-  const birthdayCount = states.filter((s) => s.expires_on_birthday).length;
+  const birthdayTypeCount = licenceTypes.filter((t) => t.expires_on_birthday).length;
+  const neverExpireCount = licenceTypes.filter((t) => !t.requires_renewal).length;
 
   return (
     <div className="space-y-6">
@@ -46,7 +51,8 @@ export default async function AdminStatesPage() {
           <SummaryPill label="Total states" value={states.length} />
           <SummaryPill label="Custom" value={customCount} />
           <SummaryPill label="Licence types" value={licenceTypes.length} />
-          <SummaryPill label="Birthday expiry" value={birthdayCount} />
+          <SummaryPill label="Birthday expiry types" value={birthdayTypeCount} />
+          <SummaryPill label="Never expire types" value={neverExpireCount} />
         </div>
       </div>
 
@@ -72,12 +78,6 @@ export default async function AdminStatesPage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <Field label="Gun renewal URL" htmlFor="new-url" hint="External link shown to users">
-                <Input id="new-url" name="gun_renewal_url" type="url" placeholder="https://" />
-              </Field>
-              <Field label="Birthday expiry">
-                <Checkbox name="expires_on_birthday" label="Expires on user&apos;s birthday" />
-              </Field>
               <Field label="Auto-renew">
                 <Checkbox name="auto_renew" label="Auto-renew licences in this state" />
               </Field>
@@ -136,7 +136,6 @@ export default async function AdminStatesPage() {
                       <Badge tone={state.is_custom ? "amber" : "slate"}>
                         {state.is_custom ? "Custom" : "Default"}
                       </Badge>
-                      {state.expires_on_birthday ? <Badge tone="rose">Birthday expiry</Badge> : null}
                       {state.auto_renew ? <Badge tone="indigo">Auto-renew</Badge> : null}
                     </div>
                   </div>
@@ -166,16 +165,6 @@ export default async function AdminStatesPage() {
                           defaultValue={state.gun_renewal_url ?? ""}
                         />
                       </Field>
-                      <Field label="Birthday expiry">
-                        <Checkbox
-                          name="expires_on_birthday"
-                          label="Expires on user's birthday"
-                          defaultChecked={state.expires_on_birthday}
-                        />
-                      </Field>
-                    </div>
-
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                       <Field label="Auto-renew">
                         <Checkbox
                           name="auto_renew"
@@ -214,7 +203,7 @@ export default async function AdminStatesPage() {
                             key={type.id}
                             className="rounded-md border border-slate-200 bg-white p-3"
                           >
-                            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
                               <form action={updateStateLicenceType} className="contents">
                                 <input type="hidden" name="id" value={type.id} />
                                 <Field label="Type name" htmlFor={`type-name-${type.id}`} required>
@@ -225,35 +214,12 @@ export default async function AdminStatesPage() {
                                     required
                                   />
                                 </Field>
-                                <Field
-                                  label="Expiration (months)"
-                                  htmlFor={`type-months-${type.id}`}
-                                  required
-                                >
-                                  <Input
-                                    id={`type-months-${type.id}`}
-                                    name="expiration_months"
-                                    type="number"
-                                    min={1}
-                                    defaultValue={type.expiration_months ?? ""}
-                                    required
-                                  />
-                                </Field>
-                                <Field
-                                  label="Processing (days)"
-                                  htmlFor={`type-days-${type.id}`}
-                                  hint="Renewal window opens this many days before expiry"
-                                  required
-                                >
-                                  <Input
-                                    id={`type-days-${type.id}`}
-                                    name="renewal_processing_days"
-                                    type="number"
-                                    min={0}
-                                    defaultValue={type.renewal_processing_days ?? ""}
-                                    required
-                                  />
-                                </Field>
+                                <LicenceTypeExpiryFields
+                                  idPrefix={`type-${type.id}`}
+                                  defaultMode={expiryModeForType(type)}
+                                  defaultMonths={type.expiration_months}
+                                  defaultDays={type.renewal_processing_days}
+                                />
                                 <div className="flex items-end gap-2">
                                   <SubmitButton size="sm" variant="secondary" pendingLabel="Saving...">
                                     Save type
@@ -280,7 +246,7 @@ export default async function AdminStatesPage() {
                     <form action={addStateLicenceType} className="space-y-3 border-t border-slate-200 pt-3">
                       <input type="hidden" name="state_id" value={state.id} />
                       <p className="text-xs font-medium text-slate-600">Add licence type</p>
-                      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
                         <Field label="Type name" htmlFor={`new-type-${state.id}`} required>
                           <Input
                             id={`new-type-${state.id}`}
@@ -289,34 +255,7 @@ export default async function AdminStatesPage() {
                             required
                           />
                         </Field>
-                        <Field
-                          label="Expiration (months)"
-                          htmlFor={`new-type-months-${state.id}`}
-                          required
-                        >
-                          <Input
-                            id={`new-type-months-${state.id}`}
-                            name="expiration_months"
-                            type="number"
-                            min={1}
-                            placeholder="e.g. 60"
-                            required
-                          />
-                        </Field>
-                        <Field
-                          label="Processing (days)"
-                          htmlFor={`new-type-days-${state.id}`}
-                          required
-                        >
-                          <Input
-                            id={`new-type-days-${state.id}`}
-                            name="renewal_processing_days"
-                            type="number"
-                            min={0}
-                            placeholder="e.g. 90"
-                            required
-                          />
-                        </Field>
+                        <LicenceTypeExpiryFields idPrefix={`new-type-${state.id}`} />
                         <div className="flex items-end">
                           <Button type="submit" size="sm">
                             Add type

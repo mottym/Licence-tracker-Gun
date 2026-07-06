@@ -29,6 +29,14 @@ async function uploadPhoto(params: {
   return path;
 }
 
+function resolveLastRenewedAt(formData: FormData): string {
+  const renewed = optionalText(formData.get("last_renewed_at"));
+  if (renewed) return renewed;
+  const issued = optionalText(formData.get("issued_at"));
+  if (issued) return issued;
+  return new Date().toISOString().split("T")[0];
+}
+
 export async function createGunLicence(formData: FormData) {
   const supabase = await createClient();
   const {
@@ -46,11 +54,9 @@ export async function createGunLicence(formData: FormData) {
       jurisdiction_id: null,
       record_type_id: formData.get("record_type_id"),
       issued_at: optionalText(formData.get("issued_at")),
-      last_renewed_at: formData.get("last_renewed_at"),
+      last_renewed_at: resolveLastRenewedAt(formData),
       licence_number: optionalText(formData.get("licence_number")),
       notes: optionalText(formData.get("notes")),
-      birth_month: formData.get("birth_month") ? Number(formData.get("birth_month")) : null,
-      birth_day: formData.get("birth_day") ? Number(formData.get("birth_day")) : null,
       auto_renew: formData.get("auto_renew") === "on",
     })
     .select("id")
@@ -109,11 +115,9 @@ export async function updateGunLicence(formData: FormData) {
       jurisdiction_id: null,
       record_type_id: formData.get("record_type_id"),
       issued_at: optionalText(formData.get("issued_at")),
-      last_renewed_at: formData.get("last_renewed_at"),
+      last_renewed_at: resolveLastRenewedAt(formData),
       licence_number: optionalText(formData.get("licence_number")),
       notes: optionalText(formData.get("notes")),
-      birth_month: formData.get("birth_month") ? Number(formData.get("birth_month")) : null,
-      birth_day: formData.get("birth_day") ? Number(formData.get("birth_day")) : null,
       auto_renew: formData.get("auto_renew") === "on",
       photo_url: photoUrl,
     })

@@ -59,10 +59,10 @@ export function GunLicenceCard({
           {formatDate(licence.last_renewed_at)}
         </Field>
         <Field icon={<CalendarClock className="h-3.5 w-3.5" />} label="Renewal opens">
-          {formatDate(licence.startRenewalBy)}
+          {licence.startRenewalBy ? formatDate(licence.startRenewalBy) : "—"}
         </Field>
         <Field icon={<CalendarClock className="h-3.5 w-3.5" />} label="Expires">
-          {formatDate(licence.expiresAt)}
+          {licence.expiresAt ? formatDate(licence.expiresAt) : "Does not expire"}
         </Field>
       </dl>
 
@@ -79,7 +79,9 @@ export function GunLicenceCard({
       ) : null}
 
       <div className="mt-5 flex items-center gap-2 border-t border-slate-100 pt-4">
-        <RenewPopover recordId={licence.id} action={renewAction} />
+        {licence.expiresAt ? (
+          <RenewPopover recordId={licence.id} action={renewAction} />
+        ) : null}
 
         <GunLicenceFormDialog
           mode="edit"

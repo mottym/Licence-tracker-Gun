@@ -63,36 +63,48 @@ export async function getGunLicences(): Promise<GunLicenceWithStatus[]> {
   } = await supabase.auth.getUser();
   if (!user) return [];
 
-  const { data } = await supabase
-    .from("gun_licences")
-    .select("*, states(*), jurisdictions(*), record_types(*)")
-    .eq("user_id", user.id)
-    .order("last_renewed_at", { ascending: false });
+  const [{ data }, profile] = await Promise.all([
+    supabase
+      .from("gun_licences")
+      .select("*, states(*), jurisdictions(*), record_types(*)")
+      .eq("user_id", user.id)
+      .order("last_renewed_at", { ascending: false }),
+    getProfile(),
+  ]);
 
-  const licencesWithStatus = (data ?? [])
-    .map((licence) => {
-      const rules = resolveGunLicenceRules(
-        licence.record_types as RecordType | null,
-        licence.states as State | null,
-      );
-      if (!rules) return null;
-      const renewalOptions = {
-        expiresOnBirthday: Boolean(licence.states?.expires_on_birthday),
-        birthMonth: licence.birth_month,
-        birthDay: licence.birth_day,
-      };
-      const effectiveAutoRenew =
-        Boolean(licence.auto_renew) || Boolean(licence.states?.auto_renew);
-      const lastRenewed = effectiveAutoRenew
-        ? rollForwardLastRenewed(new Date(licence.last_renewed_at), rules, renewalOptions)
-        : new Date(licence.last_renewed_at);
-      const status = getLicenceStatus(lastRenewed, rules, {
-        manuallyMarkedExpired: Boolean(licence.manually_marked_expired),
-        ...renewalOptions,
-      });
-      return { ...licence, rules, ...status };
-    })
-    .filter((value): value is GunLicenceWithStatus => Boolean(value));
+  const licencesWithStatus = (data ?? []).map((licence) => {
+    const type = licence.record_types as RecordType | null;
+    if (type && !type.requires_renewal) {
+      return {
+        ...licence,
+        status: licence.manually_marked_expired ? "expired" : "valid",
+        expiresAt: null,
+        startRenewalBy: null,
+        daysUntilRenewalWindow: null,
+        daysUntilExpiry: null,
+        rules: null,
+      } as GunLicenceWithStatus;
+    }
+
+    const rules = resolveGunLicenceRules(type, licence.states as State | null);
+    if (!rules) return null;
+
+    const renewalOptions = {
+      expiresOnBirthday: Boolean(type?.expires_on_birthday),
+      birthMonth: licence.birth_month ?? profile?.birth_month ?? null,
+      birthDay: licence.birth_day ?? profile?.birth_day ?? null,
+    };
+    const effectiveAutoRenew =
+      Boolean(licence.auto_renew) || Boolean(licence.states?.auto_renew);
+    const lastRenewed = effectiveAutoRenew
+      ? rollForwardLastRenewed(new Date(licence.last_renewed_at), rules, renewalOptions)
+      : new Date(licence.last_renewed_at);
+    const status = getLicenceStatus(lastRenewed, rules, {
+      manuallyMarkedExpired: Boolean(licence.manually_marked_expired),
+      ...renewalOptions,
+    });
+    return { ...licence, rules, ...status };
+  }).filter((value): value is GunLicenceWithStatus => Boolean(value));
 
   const licencesWithPhotos = await Promise.all(
     licencesWithStatus.map(async (licence) => {

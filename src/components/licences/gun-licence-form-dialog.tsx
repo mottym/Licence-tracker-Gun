@@ -19,21 +19,6 @@ import {
 } from "@/components/ui/dialog";
 import type { GunLicenceWithStatus, RecordType, State } from "@/types/database";
 
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
 interface GunLicenceFormDialogProps {
   mode: "create" | "edit";
   states: State[];
@@ -61,15 +46,12 @@ export function GunLicenceFormDialog({
   const formRef = useRef<HTMLFormElement>(null);
 
   const idPrefix = mode === "create" ? "new" : `edit-${licence?.id ?? ""}`;
-  const today = new Date().toISOString().split("T")[0];
 
   const defaultStateId = licence?.state_id ?? "";
   const defaultTypeId = licence?.record_type_id ?? "";
   const defaultLicenceNumber = licence?.licence_number ?? "";
   const defaultIssuedAt = licence?.issued_at ?? "";
-  const defaultRenewedAt = licence?.last_renewed_at ?? today;
-  const defaultBirthMonth = licence?.birth_month ?? "";
-  const defaultBirthDay = licence?.birth_day ?? "";
+  const defaultRenewedAt = licence?.last_renewed_at ?? "";
   const defaultAutoRenew = licence?.auto_renew ?? false;
   const defaultNotes = licence?.notes ?? "";
 
@@ -196,16 +178,15 @@ export function GunLicenceFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`${idPrefix}-renewed`}>Last renewed</Label>
+              <Label htmlFor={`${idPrefix}-renewed`}>Last renewed (optional)</Label>
               <Input
                 id={`${idPrefix}-renewed`}
                 name="last_renewed_at"
                 type="date"
                 defaultValue={defaultRenewedAt}
-                required
               />
               <p className="text-xs text-slate-500">
-                Used as the start date when calculating expiry.
+                Leave blank to use the issue date, or today if no issue date is set.
               </p>
             </div>
 
@@ -242,41 +223,10 @@ export function GunLicenceFormDialog({
             <summary className="cursor-pointer list-none text-sm font-medium text-slate-700 group-open:mb-3">
               Advanced
               <span className="ml-2 text-xs font-normal text-slate-500">
-                Birthday (only used by states that expire on birthday) · Notes
-                {mode === "edit" && licence?.photo_url ? " · Remove existing photo" : ""}
+                Notes{mode === "edit" && licence?.photo_url ? " · Remove existing photo" : ""}
               </span>
             </summary>
             <div className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor={`${idPrefix}-birthmonth`}>Birth month</Label>
-                  <Select
-                    id={`${idPrefix}-birthmonth`}
-                    name="birth_month"
-                    defaultValue={defaultBirthMonth ? String(defaultBirthMonth) : ""}
-                  >
-                    <option value="">—</option>
-                    {MONTHS.map((month, idx) => (
-                      <option key={month} value={idx + 1}>
-                        {month}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor={`${idPrefix}-birthday`}>Birth day</Label>
-                  <Input
-                    id={`${idPrefix}-birthday`}
-                    name="birth_day"
-                    type="number"
-                    min={1}
-                    max={31}
-                    defaultValue={defaultBirthDay ? String(defaultBirthDay) : ""}
-                    placeholder="e.g. 15"
-                  />
-                </div>
-              </div>
-
               <div className="space-y-1.5">
                 <Label htmlFor={`${idPrefix}-notes`}>Notes</Label>
                 <textarea
