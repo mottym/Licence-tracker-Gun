@@ -13,10 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { ConfirmDeleteButton } from "@/components/licences/confirm-delete-button";
-import {
-  expiryModeForType,
-  LicenceTypeExpiryFields,
-} from "@/components/admin/licence-type-expiry-fields";
+import { LicenceTypeExpiryFields } from "@/components/admin/licence-type-expiry-fields";
+import { expiryModeForType } from "@/components/admin/licence-type-expiry-mode";
 import { cn } from "@/lib/utils";
 import type { RecordType } from "@/types/database";
 

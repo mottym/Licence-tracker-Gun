@@ -4,8 +4,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-
-type ExpiryMode = "standard" | "birthday" | "never";
+import type { ExpiryMode } from "@/components/admin/licence-type-expiry-mode";
 
 interface LicenceTypeExpiryFieldsProps {
   idPrefix: string;
@@ -78,13 +77,4 @@ export function LicenceTypeExpiryFields({
       ) : null}
     </>
   );
-}
-
-export function expiryModeForType(type: {
-  requires_renewal: boolean;
-  expires_on_birthday: boolean;
-}): ExpiryMode {
-  if (!type.requires_renewal) return "never";
-  if (type.expires_on_birthday) return "birthday";
-  return "standard";
 }
