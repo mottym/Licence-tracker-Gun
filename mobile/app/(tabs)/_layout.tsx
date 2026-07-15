@@ -33,7 +33,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="licences"
         options={{
-          title: "Licences",
+          title: "Licenses",
           tabBarIcon: ({ color, size }) => (
             <Icon source="shield-outline" size={size} color={color} />
           ),

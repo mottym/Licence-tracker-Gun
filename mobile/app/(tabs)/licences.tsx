@@ -62,7 +62,7 @@ export default function LicencesScreen() {
 
   const confirmDelete = (licence: GunLicenceWithStatus) => {
     Alert.alert(
-      "Delete licence?",
+      "Delete license?",
       "This cannot be undone.",
       [
         { text: "Cancel", style: "cancel" },
@@ -72,10 +72,10 @@ export default function LicencesScreen() {
           onPress: async () => {
             try {
               await deleteGunLicence(licence.id);
-              setSnack("Licence deleted.");
+              setSnack("License deleted.");
               refresh();
             } catch {
-              setSnack("Could not delete licence.");
+              setSnack("Could not delete license.");
             }
           },
         },
@@ -89,14 +89,14 @@ export default function LicencesScreen() {
       await setGunLicenceExpired(licence.id, !licence.manually_marked_expired);
       refresh();
     } catch {
-      setSnack("Could not update licence.");
+      setSnack("Could not update license.");
     }
   };
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <Appbar.Header style={styles.appbar} statusBarHeight={0}>
-        <Appbar.Content title="Gun licences" subtitle="Track renewals and expiry" />
+        <Appbar.Content title="Gun licenses" subtitle="Track renewals and expiry" />
       </Appbar.Header>
 
       {loading ? (
@@ -106,9 +106,9 @@ export default function LicencesScreen() {
       ) : licences.length === 0 ? (
         <EmptyState
           icon="shield-outline"
-          title="No gun licences yet"
-          description="Add your first licence to start tracking renewals."
-          actionLabel="Add gun licence"
+          title="No gun licenses yet"
+          description="Add your first license to start tracking renewals."
+          actionLabel="Add gun license"
           onAction={() => setShowCreate(true)}
         />
       ) : (
@@ -131,7 +131,7 @@ export default function LicencesScreen() {
 
       <AnimatedFAB
         icon="plus"
-        label="Add licence"
+        label="Add license"
         extended
         animateFrom="right"
         iconMode="dynamic"
@@ -143,7 +143,7 @@ export default function LicencesScreen() {
         visible={showCreate}
         onDismiss={() => setShowCreate(false)}
         onSaved={() => {
-          setSnack("Licence added.");
+          setSnack("License added.");
           refresh();
         }}
         mode="create"
@@ -155,7 +155,7 @@ export default function LicencesScreen() {
         visible={!!editingLicence}
         onDismiss={() => setEditingLicence(null)}
         onSaved={() => {
-          setSnack("Licence updated.");
+          setSnack("License updated.");
           refresh();
         }}
         mode="edit"
@@ -166,12 +166,12 @@ export default function LicencesScreen() {
 
       <RenewDialog
         visible={!!renewTarget}
-        title={`Renew ${renewTarget?.record_types?.name ?? "licence"}`}
+        title={`Renew ${renewTarget?.record_types?.name ?? "license"}`}
         onDismiss={() => setRenewTarget(null)}
         onConfirm={async (date) => {
           if (!renewTarget) return;
           await renewGunLicence(renewTarget.id, date);
-          setSnack("Licence renewed.");
+          setSnack("License renewed.");
           refresh();
         }}
       />

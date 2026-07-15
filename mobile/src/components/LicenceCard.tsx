@@ -24,7 +24,7 @@ export function LicenceCard({
   const jurisdictionName =
     licence.jurisdictions?.name ?? licence.states?.name ?? "Unknown jurisdiction";
   const stateCode = licence.states?.code ?? licence.jurisdictions?.states?.code;
-  const typeName = licence.record_types?.name ?? "Licence";
+  const typeName = licence.record_types?.name ?? "License";
 
   return (
     <Card style={styles.card} mode="elevated">
@@ -94,7 +94,7 @@ export function LicenceCard({
         </View>
 
         <View style={styles.detailsGrid}>
-          <Detail label="Licence #" value={licence.licence_number ?? "Not set"} />
+          <Detail label="License #" value={licence.licence_number ?? "Not set"} />
           <Detail label="Last renewed" value={formatDate(licence.last_renewed_at)} />
           <Detail label="Renewal opens" value={formatDate(licence.startRenewalBy)} />
           <Detail
@@ -111,7 +111,7 @@ export function LicenceCard({
             }}
             style={styles.link}
           >
-            View licence photo
+            View license photo
           </Text>
         ) : null}
       </Card.Content>

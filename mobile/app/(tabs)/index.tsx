@@ -74,13 +74,13 @@ export default function OverviewScreen() {
             Overview
           </Text>
           <Text variant="bodyMedium" style={styles.subtitle}>
-            A snapshot of your licences and courses.
+            A snapshot of your licenses and courses.
           </Text>
         </View>
 
         <View style={styles.statsRow}>
           <StatTile
-            label="Gun licences"
+            label="Gun licenses"
             value={licences.length}
             tone="slate"
             icon="shield-outline"
@@ -113,7 +113,7 @@ export default function OverviewScreen() {
           <Card.Content style={styles.upcomingList}>
             {upcoming.length === 0 ? (
               <Text variant="bodyMedium" style={styles.empty}>
-                No licences yet. Add one from the Licences tab to start tracking renewals.
+                No licenses yet. Add one from the Licenses tab to start tracking renewals.
               </Text>
             ) : (
               upcoming.map((licence) => (
@@ -189,7 +189,7 @@ function UpcomingRow({ licence }: { licence: GunLicenceWithStatus }) {
     <View style={styles.upcomingRow}>
       <View style={styles.upcomingText}>
         <Text variant="bodyMedium" style={styles.upcomingTitle}>
-          {licence.record_types?.name ?? "Licence"}
+          {licence.record_types?.name ?? "License"}
         </Text>
         <Text variant="bodySmall" style={styles.upcomingSubtitle}>
           {jurisdictionName} · expires {formatDate(licence.expiresAt)}

@@ -96,7 +96,7 @@ export function LicenceFormDialog({
 
   const handleSubmit = async () => {
     if (!jurisdictionId || !recordTypeId) {
-      setError("Jurisdiction and licence type are required.");
+      setError("Jurisdiction and license type are required.");
       return;
     }
     setSaving(true);
@@ -141,7 +141,7 @@ export function LicenceFormDialog({
       onSaved();
       onDismiss();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save licence.");
+      setError(err instanceof Error ? err.message : "Could not save license.");
     } finally {
       setSaving(false);
     }
@@ -150,7 +150,7 @@ export function LicenceFormDialog({
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={saving ? undefined : onDismiss}>
-        <Dialog.Title>{mode === "create" ? "Add gun licence" : "Edit gun licence"}</Dialog.Title>
+        <Dialog.Title>{mode === "create" ? "Add gun license" : "Edit gun license"}</Dialog.Title>
         <Dialog.ScrollArea style={styles.scrollArea}>
           <ScrollView contentContainerStyle={styles.scroll}>
             <SelectField
@@ -160,14 +160,14 @@ export function LicenceFormDialog({
               onChange={setJurisdictionId}
             />
             <SelectField
-              label="Licence type"
+              label="License type"
               value={recordTypeId}
               options={typeOptions}
               onChange={setRecordTypeId}
             />
             <TextInput
               mode="outlined"
-              label="Licence number"
+              label="License number"
               value={licenceNumber}
               onChangeText={setLicenceNumber}
               placeholder="e.g. NYC-12345"
@@ -192,7 +192,7 @@ export function LicenceFormDialog({
               <View style={styles.switchText}>
                 <Text variant="bodyLarge">Auto-renew</Text>
                 <Text variant="bodySmall" style={styles.switchHelper}>
-                  Automatically roll renewal dates forward so this licence stays current.
+                  Automatically roll renewal dates forward so this license stays current.
                 </Text>
               </View>
               <Switch value={autoRenew} onValueChange={setAutoRenew} />
@@ -208,7 +208,7 @@ export function LicenceFormDialog({
             />
 
             <PhotoPicker
-              label="Licence photo"
+              label="License photo"
               helperText={
                 mode === "edit" && licence?.photo_signed_url
                   ? "Pick a new photo to replace the existing one, or tap remove."
@@ -236,7 +236,7 @@ export function LicenceFormDialog({
             Cancel
           </Button>
           <Button mode="contained" onPress={handleSubmit} loading={saving} disabled={saving}>
-            {mode === "create" ? "Add licence" : "Save changes"}
+            {mode === "create" ? "Add license" : "Save changes"}
           </Button>
         </Dialog.Actions>
       </Dialog>

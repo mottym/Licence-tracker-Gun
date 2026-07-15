@@ -1,7 +1,7 @@
 import type { ExpoConfig } from "expo/config";
 
 const config: ExpoConfig = {
-  name: "Licence Tracker",
+  name: "License Tracker",
   slug: "licence-tracker",
   scheme: "licencetracker",
   version: "0.1.0",
@@ -34,9 +34,9 @@ const config: ExpoConfig = {
       "expo-image-picker",
       {
         photosPermission:
-          "Licence Tracker needs access to your photos to attach licence photos and course certificates.",
+          "License Tracker needs access to your photos to attach license photos and course certificates.",
         cameraPermission:
-          "Licence Tracker needs access to your camera to capture licence photos.",
+          "License Tracker needs access to your camera to capture license photos.",
       },
     ],
     [

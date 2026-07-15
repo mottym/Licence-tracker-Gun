@@ -39,7 +39,7 @@ export default function LoginScreen() {
               <Text style={styles.brandSquareText}>GL</Text>
             </View>
             <Text variant="titleMedium" style={styles.brandTitle}>
-              Licence Tracker
+              License Tracker
             </Text>
           </View>
 
@@ -47,7 +47,7 @@ export default function LoginScreen() {
             Welcome back
           </Text>
           <Text variant="bodyMedium" style={styles.subheading}>
-            Sign in to manage your gun licences and courses.
+            Sign in to manage your gun licenses and courses.
           </Text>
 
           <View style={styles.form}>
