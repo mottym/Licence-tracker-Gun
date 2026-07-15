@@ -32,7 +32,7 @@ export default async function AdminTaxonomyPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Categories</h1>
         <p className="mt-1 text-sm text-slate-500">
           Organizations and gun course types used in the dropdowns when adding a gun course.
-          Gun licence types are managed per state on the States page.
+          Gun license types are managed per state on the States page.
         </p>
       </header>
 

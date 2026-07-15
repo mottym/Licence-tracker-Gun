@@ -37,9 +37,9 @@ const userSection: NavSection = {
   label: "Records",
   items: [
     { href: "/dashboard", label: "Overview", match: "/dashboard", icon: LayoutDashboard, exact: true },
-    { href: "/dashboard/gun-licences", label: "Gun licences", match: "/dashboard/gun-licences", icon: Target },
+    { href: "/dashboard/gun-licences", label: "Gun licenses", match: "/dashboard/gun-licences", icon: Target },
     { href: "/dashboard/gun-courses", label: "Gun courses", match: "/dashboard/gun-courses", icon: GraduationCap },
-    { href: "/dashboard/custom-licences", label: "Custom licences", match: "/dashboard/custom-licences", icon: IdCard },
+    { href: "/dashboard/custom-licences", label: "Custom licenses", match: "/dashboard/custom-licences", icon: IdCard },
   ],
 };
 
@@ -83,7 +83,7 @@ export function SidebarNav({ isAdmin = false, userEmail }: SidebarNavProps) {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-xs font-bold text-white">
             GL
           </span>
-          <span className="text-sm font-semibold tracking-tight">Licence Tracker</span>
+          <span className="text-sm font-semibold tracking-tight">License Tracker</span>
         </Link>
         <button
           type="button"
@@ -136,7 +136,7 @@ function SidebarContent({ pathname, sections, userEmail, onNavigate }: SidebarCo
           GL
         </span>
         <div className="leading-tight">
-          <p className="text-sm font-semibold tracking-tight text-slate-900">Licence Tracker</p>
+          <p className="text-sm font-semibold tracking-tight text-slate-900">License Tracker</p>
           <p className="text-xs text-slate-500">Stay on top of renewals</p>
         </div>
       </div>

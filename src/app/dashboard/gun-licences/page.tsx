@@ -24,9 +24,9 @@ export default async function GunLicencesPage() {
     <div className="space-y-6">
       <header className="sticky top-14 z-20 -mx-4 flex flex-wrap items-end justify-between gap-4 border-b border-slate-200/80 bg-slate-50/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 md:top-0 lg:-mx-8 lg:px-8">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Gun licences</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Gun licenses</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Track licence numbers, renewal windows, and expiry dates by jurisdiction.
+            Track license numbers, renewal windows, and expiry dates by jurisdiction.
           </p>
         </div>
         <GunLicenceFormDialog
@@ -34,7 +34,7 @@ export default async function GunLicencesPage() {
           states={states}
           licenceTypes={licenceTypes}
           action={createGunLicence}
-          triggerLabel="Add gun licence"
+          triggerLabel="Add gun license"
         />
       </header>
 
@@ -66,9 +66,9 @@ function EmptyState() {
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
         <Target className="h-5 w-5" />
       </div>
-      <h2 className="mt-4 text-base font-semibold text-slate-900">No gun licences yet</h2>
+      <h2 className="mt-4 text-base font-semibold text-slate-900">No gun licenses yet</h2>
       <p className="mt-1 text-sm text-slate-500">
-        Add your first licence to start tracking renewals and expiry.
+        Add your first license to start tracking renewals and expiry.
       </p>
     </div>
   );

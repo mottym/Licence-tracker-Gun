@@ -57,7 +57,7 @@ export default async function DashboardPage() {
       .filter((licence) => licence.expiresAt != null && licence.daysUntilExpiry != null)
       .map<RenewalRow>((licence) => ({
         id: `gun-licence-${licence.id}`,
-        title: licence.record_types?.name ?? "Gun licence",
+        title: licence.record_types?.name ?? "Gun license",
         subtitle:
           licence.jurisdictions?.name ?? licence.states?.name ?? "Unknown jurisdiction",
         status: licence.status,
@@ -67,7 +67,7 @@ export default async function DashboardPage() {
     ...customLicences.map<RenewalRow>((licence) => ({
       id: `custom-licence-${licence.id}`,
       title: licence.name,
-      subtitle: licence.issuer ?? "Custom licence",
+      subtitle: licence.issuer ?? "Custom license",
       status: licence.status,
       expiresAt: licence.expiresAt,
       daysUntilExpiry: licence.daysUntilExpiry,
@@ -93,14 +93,14 @@ export default async function DashboardPage() {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Overview</h1>
         <p className="mt-1 text-sm text-slate-500">
-          A snapshot of your licences and courses.
+          A snapshot of your licenses and courses.
         </p>
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard
           icon={Target}
-          label="Gun licences"
+          label="Gun licenses"
           value={licences.length}
           tone="slate"
           href="/dashboard/gun-licences"
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
         />
         <StatCard
           icon={IdCard}
-          label="Custom licences"
+          label="Custom licenses"
           value={customLicences.length}
           tone="slate"
           href="/dashboard/custom-licences"
@@ -150,7 +150,7 @@ export default async function DashboardPage() {
           <ul className="divide-y divide-slate-100">
             {upcomingRenewals.length === 0 ? (
               <li className="px-6 py-8 text-sm text-slate-500">
-                No licences yet. Add one to start tracking renewals.
+                No licenses yet. Add one to start tracking renewals.
               </li>
             ) : (
               upcomingRenewals.map((row) => (
@@ -191,7 +191,7 @@ export default async function DashboardPage() {
               states={states}
               licenceTypes={licenceTypes}
               action={createGunLicence}
-              triggerLabel="Add gun licence"
+              triggerLabel="Add gun license"
               triggerVariant="outline"
               triggerClassName="w-full justify-start"
             />
@@ -207,7 +207,7 @@ export default async function DashboardPage() {
             <CustomLicenceFormDialog
               mode="create"
               action={createCustomLicence}
-              triggerLabel="Add custom licence"
+              triggerLabel="Add custom license"
               triggerVariant="outline"
               triggerClassName="w-full justify-start"
             />
@@ -219,7 +219,7 @@ export default async function DashboardPage() {
             </Button>
           </div>
           <div className="mt-6 rounded-lg bg-slate-50 p-3">
-            <p className="text-xs text-slate-500">Valid licences</p>
+            <p className="text-xs text-slate-500">Valid licenses</p>
             <p className="mt-0.5 text-2xl font-semibold text-emerald-600">{validCount}</p>
           </div>
         </div>

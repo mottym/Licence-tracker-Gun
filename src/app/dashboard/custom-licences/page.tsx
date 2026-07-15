@@ -18,17 +18,17 @@ export default async function CustomLicencesPage() {
       <header className="sticky top-14 z-20 -mx-4 flex flex-wrap items-end justify-between gap-4 border-b border-slate-200/80 bg-slate-50/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 md:top-0 lg:-mx-8 lg:px-8">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-            Custom licences
+            Custom licenses
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Track any other credential — driver&apos;s licence, OSHA card,
+            Track any other credential — driver&apos;s license, OSHA card,
             professional certification — by entering its expiry date directly.
           </p>
         </div>
         <CustomLicenceFormDialog
           mode="create"
           action={createCustomLicence}
-          triggerLabel="Add custom licence"
+          triggerLabel="Add custom license"
         />
       </header>
 
@@ -59,10 +59,10 @@ function EmptyState() {
         <IdCard className="h-5 w-5" />
       </div>
       <h2 className="mt-4 text-base font-semibold text-slate-900">
-        No custom licences yet
+        No custom licenses yet
       </h2>
       <p className="mt-1 text-sm text-slate-500">
-        Add credentials like a driver&apos;s licence or OSHA card to track
+        Add credentials like a driver&apos;s license or OSHA card to track
         expiry alongside your other records.
       </p>
     </div>

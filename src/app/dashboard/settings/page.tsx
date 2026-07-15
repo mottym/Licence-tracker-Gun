@@ -48,7 +48,7 @@ export default async function SettingsPage() {
         <CardHeader>
           <CardTitle>General settings</CardTitle>
           <CardDescription>
-            Your birthday is used when a licence type expires on your birthday.
+            Your birthday is used when a license type expires on your birthday.
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { siteConfig } from "@/lib/site-config";
 
-export const alt = `${siteConfig.name} — Gun Licence Renewal Tracker`;
+export const alt = `${siteConfig.name} — Gun License Renewal Tracker`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -50,7 +50,7 @@ export default function OpenGraphImage() {
           {siteConfig.tagline}
         </p>
         <p style={{ fontSize: 22, color: "#94a3b8", marginTop: 24, maxWidth: 700 }}>
-          Track gun licence renewals across all 50 states with email and push reminders.
+          Track gun license renewals across all 50 states with email and push reminders.
         </p>
       </div>
     ),

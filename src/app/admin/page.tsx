@@ -42,7 +42,7 @@ export default async function AdminHomePage() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p><Link className="underline" href="/admin/users">Users &amp; admins — promote or invite</Link></p>
-          <p><Link className="underline" href="/admin/states">Manage states &amp; licence types</Link></p>
+          <p><Link className="underline" href="/admin/states">Manage states &amp; license types</Link></p>
           <p><Link className="underline" href="/admin/taxonomy">Manage course categories</Link></p>
           <p className="text-slate-500">
             {taxonomyCounts.organizations} organizations · {taxonomyCounts.recordTypes} record types
