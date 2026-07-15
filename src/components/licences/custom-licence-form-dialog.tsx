@@ -59,7 +59,7 @@ export function CustomLicenceFormDialog({
             className={triggerClassName}
           >
             <Plus className="h-4 w-4" />
-            {triggerLabel ?? "Add custom licence"}
+            {triggerLabel ?? "Add custom license"}
           </Button>
         ) : (
           <Button
@@ -76,10 +76,10 @@ export function CustomLicenceFormDialog({
       <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>
-            {mode === "create" ? "Add custom licence" : "Edit custom licence"}
+            {mode === "create" ? "Add custom license" : "Edit custom license"}
           </DialogTitle>
           <DialogDescription>
-            Track any credential — driver&apos;s licence, OSHA card,
+            Track any credential — driver&apos;s license, OSHA card,
             certification — by entering its expiry date directly.
           </DialogDescription>
         </DialogHeader>
@@ -101,7 +101,7 @@ export function CustomLicenceFormDialog({
                 id={`${idPrefix}-name`}
                 name="name"
                 defaultValue={licence?.name ?? ""}
-                placeholder="e.g. NJ Driver's Licence, OSHA 30"
+                placeholder="e.g. NJ Driver's License, OSHA 30"
                 required
               />
             </div>
@@ -118,7 +118,7 @@ export function CustomLicenceFormDialog({
 
             <div className="space-y-1.5">
               <Label htmlFor={`${idPrefix}-number`}>
-                Licence number (optional)
+                License number (optional)
               </Label>
               <Input
                 id={`${idPrefix}-number`}
@@ -167,7 +167,7 @@ export function CustomLicenceFormDialog({
             <div className="space-y-1.5">
               <Label htmlFor={`${idPrefix}-photo`}>
                 {mode === "create"
-                  ? "Licence photo (optional)"
+                  ? "License photo (optional)"
                   : "Replace photo (optional)"}
               </Label>
               <Input
@@ -231,7 +231,7 @@ export function CustomLicenceFormDialog({
               </Button>
             </DialogClose>
             <SubmitButton>
-              {mode === "create" ? "Add licence" : "Save changes"}
+              {mode === "create" ? "Add license" : "Save changes"}
             </SubmitButton>
           </DialogFooter>
         </form>

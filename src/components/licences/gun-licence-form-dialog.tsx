@@ -84,7 +84,7 @@ export function GunLicenceFormDialog({
             className={triggerClassName}
           >
             <Plus className="h-4 w-4" />
-            {triggerLabel ?? "Add licence"}
+            {triggerLabel ?? "Add license"}
           </Button>
         ) : (
           <Button
@@ -101,12 +101,12 @@ export function GunLicenceFormDialog({
       <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>
-            {mode === "create" ? "Add gun licence" : "Edit gun licence"}
+            {mode === "create" ? "Add gun license" : "Edit gun license"}
           </DialogTitle>
           <DialogDescription>
             {mode === "create"
-              ? "Choose a state and licence type. Expiry is calculated from the type's rules."
-              : "Update any details that have changed. Renewing? Use the Renew button on the licence card instead."}
+              ? "Choose a state and license type. Expiry is calculated from the type's rules."
+              : "Update any details that have changed. Renewing? Use the Renew button on the license card instead."}
           </DialogDescription>
         </DialogHeader>
 
@@ -135,7 +135,7 @@ export function GunLicenceFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`${idPrefix}-type`}>Licence type</Label>
+              <Label htmlFor={`${idPrefix}-type`}>License type</Label>
               <Select
                 id={`${idPrefix}-type`}
                 name="record_type_id"
@@ -151,13 +151,13 @@ export function GunLicenceFormDialog({
               </Select>
               {selectedStateId && filteredTypes.length === 0 ? (
                 <p className="text-xs text-amber-600">
-                  No licence types for this state yet. An admin can add them on the States page.
+                  No license types for this state yet. An admin can add them on the States page.
                 </p>
               ) : null}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor={`${idPrefix}-number`}>Licence number</Label>
+              <Label htmlFor={`${idPrefix}-number`}>License number</Label>
               <Input
                 id={`${idPrefix}-number`}
                 name="licence_number"
@@ -192,7 +192,7 @@ export function GunLicenceFormDialog({
 
             <div className="space-y-1.5">
               <Label htmlFor={`${idPrefix}-photo`}>
-                {mode === "create" ? "Licence photo (optional)" : "Replace photo (optional)"}
+                {mode === "create" ? "License photo (optional)" : "Replace photo (optional)"}
               </Label>
               <Input
                 id={`${idPrefix}-photo`}
@@ -214,7 +214,7 @@ export function GunLicenceFormDialog({
             <span className="space-y-0.5">
               <span className="block text-sm font-medium text-slate-700">Auto-renew</span>
               <span className="block text-xs text-slate-500">
-                Automatically roll the renewal date forward each cycle so this licence stays current.
+                Automatically roll the renewal date forward each cycle so this license stays current.
               </span>
             </span>
           </label>
@@ -253,7 +253,7 @@ export function GunLicenceFormDialog({
                 Cancel
               </Button>
             </DialogClose>
-            <SubmitButton>{mode === "create" ? "Add licence" : "Save changes"}</SubmitButton>
+            <SubmitButton>{mode === "create" ? "Add license" : "Save changes"}</SubmitButton>
           </DialogFooter>
         </form>
       </DialogContent>

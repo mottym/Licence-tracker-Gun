@@ -42,13 +42,13 @@ export default async function AdminStatesPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">State manager</h1>
           <p className="text-sm text-slate-500">
-            Configure states and manage gun licence types — each type has its own expiry rules.
+            Configure states and manage gun license types — each type has its own expiry rules.
           </p>
         </div>
         <div className="flex flex-wrap gap-2 text-xs">
           <SummaryPill label="Total states" value={states.length} />
           <SummaryPill label="Custom" value={customCount} />
-          <SummaryPill label="Licence types" value={licenceTypes.length} />
+          <SummaryPill label="License types" value={licenceTypes.length} />
           <SummaryPill label="Birthday expiry types" value={birthdayTypeCount} />
           <SummaryPill label="Never expire types" value={neverExpireCount} />
         </div>
@@ -77,7 +77,7 @@ export default async function AdminStatesPage() {
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <Field label="Auto-renew">
-                <Checkbox name="auto_renew" label="Auto-renew licences in this state" />
+                <Checkbox name="auto_renew" label="Auto-renew licenses in this state" />
               </Field>
             </div>
 
@@ -93,7 +93,7 @@ export default async function AdminStatesPage() {
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <CardTitle>Existing states</CardTitle>
-              <CardDescription>Update state settings and manage licence types with per-type expiry rules.</CardDescription>
+              <CardDescription>Update state settings and manage license types with per-type expiry rules.</CardDescription>
             </div>
             <p className="text-xs text-slate-500">{states.length} states</p>
           </div>
@@ -125,8 +125,8 @@ export default async function AdminStatesPage() {
                         <p className="text-sm font-semibold text-slate-900">{state.name}</p>
                         <p className="text-xs text-slate-500">
                           {stateLicenceTypes.length === 0
-                            ? "No licence types yet"
-                            : `${stateLicenceTypes.length} licence type${stateLicenceTypes.length === 1 ? "" : "s"} · ${typesWithRules} with expiry rules`}
+                            ? "No license types yet"
+                            : `${stateLicenceTypes.length} license type${stateLicenceTypes.length === 1 ? "" : "s"} · ${typesWithRules} with expiry rules`}
                         </p>
                       </div>
                     </div>
@@ -166,7 +166,7 @@ export default async function AdminStatesPage() {
                       <Field label="Auto-renew">
                         <Checkbox
                           name="auto_renew"
-                          label="Auto-renew licences in this state"
+                          label="Auto-renew licenses in this state"
                           defaultChecked={state.auto_renew}
                         />
                       </Field>
@@ -188,11 +188,11 @@ export default async function AdminStatesPage() {
 
                   <div className="mt-4 space-y-2 border-t border-slate-200 pt-4">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                      Gun licence types
+                      Gun license types
                     </p>
                     {stateLicenceTypes.length === 0 ? (
                       <p className="text-xs text-slate-400">
-                        No licence types yet. Add the first one below with its expiry rules.
+                        No license types yet. Add the first one below with its expiry rules.
                       </p>
                     ) : (
                       <ul className="space-y-2">
@@ -230,7 +230,7 @@ export default async function AdminStatesPage() {
                                   type="submit"
                                   variant="destructive"
                                   size="sm"
-                                  message="Remove this licence type? It can't be removed while licences still use it."
+                                  message="Remove this license type? It can't be removed while licenses still use it."
                                 >
                                   Remove
                                 </ConfirmDeleteButton>
@@ -243,13 +243,13 @@ export default async function AdminStatesPage() {
 
                     <form action={addStateLicenceType} className="space-y-3 border-t border-slate-200 pt-3">
                       <input type="hidden" name="state_id" value={state.id} />
-                      <p className="text-xs font-medium text-slate-600">Add licence type</p>
+                      <p className="text-xs font-medium text-slate-600">Add license type</p>
                       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
                         <Field label="Type name" htmlFor={`new-type-${state.id}`} required>
                           <Input
                             id={`new-type-${state.id}`}
                             name="name"
-                            placeholder="e.g. Premises Licence"
+                            placeholder="e.g. Premises License"
                             required
                           />
                         </Field>
@@ -355,7 +355,7 @@ function DeleteStateForm({ stateId }: { stateId: string }) {
         type="submit"
         variant="destructive"
         size="sm"
-        message="Delete this custom state? Licences referencing it will be orphaned."
+        message="Delete this custom state? Licenses referencing it will be orphaned."
       >
         Delete state
       </ConfirmDeleteButton>

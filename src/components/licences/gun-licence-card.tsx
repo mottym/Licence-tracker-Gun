@@ -52,7 +52,7 @@ export function GunLicenceCard({
       </div>
 
       <dl className="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-        <Field icon={<Hash className="h-3.5 w-3.5" />} label="Licence #">
+        <Field icon={<Hash className="h-3.5 w-3.5" />} label="License #">
           {licence.licence_number ?? "Not set"}
         </Field>
         <Field icon={<CalendarClock className="h-3.5 w-3.5" />} label="Last renewed">
@@ -74,7 +74,7 @@ export function GunLicenceCard({
           className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
         >
           <ImageIcon className="h-3.5 w-3.5" />
-          View licence photo
+          View license photo
         </a>
       ) : null}
 
@@ -97,7 +97,7 @@ export function GunLicenceCard({
             isMarkedExpired={Boolean(licence.manually_marked_expired)}
             confirmExpiredAction={confirmExpiredAction}
             deleteAction={deleteAction}
-            deleteConfirmMessage="Delete this gun licence? This cannot be undone."
+            deleteConfirmMessage="Delete this gun license? This cannot be undone."
           />
         </div>
       </div>

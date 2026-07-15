@@ -55,7 +55,7 @@ export function CustomLicenceCard({
       </div>
 
       <dl className="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-        <Field icon={<Hash className="h-3.5 w-3.5" />} label="Licence #">
+        <Field icon={<Hash className="h-3.5 w-3.5" />} label="License #">
           {licence.licence_number ?? "Not set"}
         </Field>
         <Field icon={<CalendarClock className="h-3.5 w-3.5" />} label="Issued">
@@ -77,7 +77,7 @@ export function CustomLicenceCard({
           className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
         >
           <ImageIcon className="h-3.5 w-3.5" />
-          View licence photo
+          View license photo
         </a>
       ) : null}
 
@@ -88,7 +88,7 @@ export function CustomLicenceCard({
           triggerLabel="Renew"
           fieldName="expires_at"
           fieldLabel="New expiry date"
-          helpText="Set the licence's new expiration date."
+          helpText="Set the license's new expiration date."
           submitLabel="Update expiry"
           pendingLabel="Updating…"
         />
@@ -105,7 +105,7 @@ export function CustomLicenceCard({
             isMarkedExpired={Boolean(licence.manually_marked_expired)}
             confirmExpiredAction={confirmExpiredAction}
             deleteAction={deleteAction}
-            deleteConfirmMessage="Delete this custom licence? This cannot be undone."
+            deleteConfirmMessage="Delete this custom license? This cannot be undone."
           />
         </div>
       </div>

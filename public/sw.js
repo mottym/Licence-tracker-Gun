@@ -2,7 +2,7 @@ self.addEventListener("push", (event) => {
   if (!event.data) return;
   const payload = event.data.json();
   event.waitUntil(
-    self.registration.showNotification(payload.title ?? "Licence reminder", {
+    self.registration.showNotification(payload.title ?? "License reminder", {
       body: payload.body ?? "Your renewal window is open.",
       icon: "/favicon.ico",
       data: payload.data ?? {},
