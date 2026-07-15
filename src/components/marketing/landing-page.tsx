@@ -14,7 +14,7 @@ import { LandingHeader } from "./landing-header";
 const features = [
   {
     icon: Target,
-    title: "Gun licence tracking",
+    title: "Gun license tracking",
     description:
       "Add every permit with issue and expiry dates. See renewal windows and status at a glance.",
   },
@@ -22,7 +22,7 @@ const features = [
     icon: MapPin,
     title: "Multi-state support",
     description:
-      "Built-in rules for all US states. Renewal timelines adapt to where each licence was issued.",
+      "Built-in rules for all US states. Renewal timelines adapt to where each license was issued.",
   },
   {
     icon: Bell,
@@ -34,7 +34,7 @@ const features = [
     icon: GraduationCap,
     title: "Gun courses",
     description:
-      "Track safety courses and certifications alongside your licences in one dashboard.",
+      "Track safety courses and certifications alongside your licenses in one dashboard.",
   },
   {
     icon: Calendar,
@@ -58,7 +58,7 @@ const steps = [
   },
   {
     step: "2",
-    title: "Add your licences",
+    title: "Add your licenses",
     description: "Enter your gun permits, courses, and any custom credentials you need to track.",
   },
   {
@@ -101,7 +101,7 @@ export function LandingPage() {
           <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 lg:py-32">
             <div className="mx-auto max-w-3xl text-center">
               <p className="mb-4 inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-600 shadow-sm">
-                Gun licence renewal tracker for all 50 states
+                Gun license renewal tracker for all 50 states
               </p>
               <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
                 {siteConfig.tagline}
@@ -131,7 +131,7 @@ export function LandingPage() {
                 Everything you need to stay current
               </h2>
               <p className="mt-4 text-slate-600">
-                One dashboard for all your firearm licences, courses, and renewal deadlines.
+                One dashboard for all your firearm licenses, courses, and renewal deadlines.
               </p>
             </div>
             <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -158,7 +158,7 @@ export function LandingPage() {
                 Up and running in minutes
               </h2>
               <p className="mt-4 text-slate-600">
-                No complicated setup. Add your licences and let RenewMe handle the rest.
+                No complicated setup. Add your licenses and let RenewMe handle the rest.
               </p>
             </div>
             <div className="mt-14 grid gap-8 md:grid-cols-3">
@@ -181,7 +181,7 @@ export function LandingPage() {
               Ready to take control of your renewals?
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-slate-300">
-              Join RenewMe today and never worry about a missed gun licence renewal again.
+              Join RenewMe today and never worry about a missed gun license renewal again.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button
@@ -213,7 +213,7 @@ export function LandingPage() {
             <span className="text-sm font-semibold text-slate-900">{siteConfig.name}</span>
           </div>
           <p className="text-sm text-slate-500">
-            &copy; {new Date().getFullYear()} {siteConfig.name}. Track gun licence renewals with confidence.
+            &copy; {new Date().getFullYear()} {siteConfig.name}. Track gun license renewals with confidence.
           </p>
         </div>
       </footer>

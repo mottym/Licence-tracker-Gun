@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} — Gun Licence Renewal Tracker`,
+    default: `${siteConfig.name} — Gun License Renewal Tracker`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
@@ -40,12 +40,12 @@ export const metadata: Metadata = {
     locale: siteConfig.locale,
     url: siteConfig.url,
     siteName: siteConfig.name,
-    title: `${siteConfig.name} — Gun Licence Renewal Tracker`,
+    title: `${siteConfig.name} — Gun License Renewal Tracker`,
     description: siteConfig.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} — Gun Licence Renewal Tracker`,
+    title: `${siteConfig.name} — Gun License Renewal Tracker`,
     description: siteConfig.description,
   },
   alternates: {

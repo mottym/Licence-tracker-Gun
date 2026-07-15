@@ -6,13 +6,13 @@ import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "Create account",
-  description: `Create a free ${siteConfig.name} account to track gun licence renewals across all US states with email and push reminders.`,
+  description: `Create a free ${siteConfig.name} account to track gun license renewals across all US states with email and push reminders.`,
   alternates: {
     canonical: `${siteConfig.url}/signup`,
   },
   openGraph: {
     title: `Create account | ${siteConfig.name}`,
-    description: `Start tracking gun licence renewals for free with ${siteConfig.name}.`,
+    description: `Start tracking gun license renewals for free with ${siteConfig.name}.`,
     url: `${siteConfig.url}/signup`,
   },
 };
@@ -21,7 +21,7 @@ export default function SignupPage() {
   return (
     <AuthLayout
       title="Create your account"
-      description="Set up tracking for all your gun licences in minutes."
+      description="Set up tracking for all your gun licenses in minutes."
     >
       <AuthForm mode="signup" />
       <p className="mt-6 text-center text-sm text-slate-600">

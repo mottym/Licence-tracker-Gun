@@ -11,7 +11,7 @@ interface AuthLayoutProps {
 const highlights = [
   {
     icon: Target,
-    title: "Track every licence",
+    title: "Track every license",
     description: "Gun permits, courses, and custom credentials in one place.",
   },
   {
