@@ -1,25 +1,35 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { AuthForm } from "@/components/auth/auth-form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AuthLayout } from "@/components/marketing/auth-layout";
+import { siteConfig } from "@/lib/site-config";
+
+export const metadata: Metadata = {
+  title: "Sign in",
+  description: `Sign in to ${siteConfig.name} to access your gun licence dashboard, renewal reminders, and compliance tracking.`,
+  alternates: {
+    canonical: `${siteConfig.url}/login`,
+  },
+  openGraph: {
+    title: `Sign in | ${siteConfig.name}`,
+    description: `Access your gun licence dashboard and renewal reminders on ${siteConfig.name}.`,
+    url: `${siteConfig.url}/login`,
+  },
+};
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 px-4">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader>
-          <CardTitle>Sign in</CardTitle>
-          <CardDescription>Access your licences and renewal reminders.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <AuthForm mode="login" />
-          <p className="text-sm text-slate-600">
-            New here?{" "}
-            <Link href="/signup" className="font-medium text-slate-900 underline">
-              Create an account
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    </main>
+    <AuthLayout
+      title="Welcome back"
+      description="Sign in to access your licences and renewal reminders."
+    >
+      <AuthForm mode="login" />
+      <p className="mt-6 text-center text-sm text-slate-600">
+        New here?{" "}
+        <Link href="/signup" className="font-medium text-slate-900 underline">
+          Create an account
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }

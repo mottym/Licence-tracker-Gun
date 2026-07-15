@@ -1,25 +1,35 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { AuthForm } from "@/components/auth/auth-form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AuthLayout } from "@/components/marketing/auth-layout";
+import { siteConfig } from "@/lib/site-config";
+
+export const metadata: Metadata = {
+  title: "Create account",
+  description: `Create a free ${siteConfig.name} account to track gun licence renewals across all US states with email and push reminders.`,
+  alternates: {
+    canonical: `${siteConfig.url}/signup`,
+  },
+  openGraph: {
+    title: `Create account | ${siteConfig.name}`,
+    description: `Start tracking gun licence renewals for free with ${siteConfig.name}.`,
+    url: `${siteConfig.url}/signup`,
+  },
+};
 
 export default function SignupPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 px-4">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader>
-          <CardTitle>Create account</CardTitle>
-          <CardDescription>Set up tracking for all your licences.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <AuthForm mode="signup" />
-          <p className="text-sm text-slate-600">
-            Already have an account?{" "}
-            <Link href="/login" className="font-medium text-slate-900 underline">
-              Sign in
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    </main>
+    <AuthLayout
+      title="Create your account"
+      description="Set up tracking for all your gun licences in minutes."
+    >
+      <AuthForm mode="signup" />
+      <p className="mt-6 text-center text-sm text-slate-600">
+        Already have an account?{" "}
+        <Link href="/login" className="font-medium text-slate-900 underline">
+          Sign in
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }
